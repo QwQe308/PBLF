@@ -1,0 +1,1 @@
+export type StyleRecord = Record<string, string | number>;

@@ -1,13 +1,14 @@
 import { Interval } from "./interval.ts";
+import type { StyleRecord } from "./types.ts";
 
 type strings = [string, ...string[]]
 
 export class SwapImage {
-  elements: HTMLElement[] = [],
+  elements: HTMLElement[] = [];
   shown = 0;
   imagesCount = 0;
-  interval = undefined;
-  intervalFunction = undefined;
+  interval: number | undefined = undefined;
+  intervalFunction: Interval | undefined = undefined;
 
   constructor(...images: strings) {
     let elements = images.map((image) => {
@@ -19,7 +20,7 @@ export class SwapImage {
       return element;
     });
 
-    elements[0].style.opacity = "0";
+    elements[0]!.style.opacity = "0";
     this.elements = elements;
   }
 
@@ -27,9 +28,9 @@ export class SwapImage {
     this.elements.forEach((x) => x.classList.add(...classes));
   }
 
-  assignStyle(styles) {
-    for (let i in styles) {
-      this.elements.forEach((element) => (element.style[i] = styles[i]));
+  assignStyle(styles: StyleRecord): void {
+    for (const i in styles) {
+      this.elements.forEach((element) => (element.style as any)[i] = styles[i]);
     }
   }
 
@@ -37,7 +38,7 @@ export class SwapImage {
    * @function Sets swap interval.
    * @param {number} interval Swap interval in seconds.
    */
-  setSwapInterval(interval) {
+  setSwapInterval(interval: number): void {
     this.interval = interval;
     if (this.intervalFunction) {
       this.intervalFunction.remove();
@@ -49,22 +50,23 @@ export class SwapImage {
   /**
    * @function Starts the swap.
    */
-  start() {
+  start(): void {
     if (!this.interval) console.error("No Interval defined in the SwapImage!");
-    this.intervalFunction = new Interval(this.update.bind(this), this.interval);
+    this.intervalFunction = new Interval(this.update.bind(this), this.interval!); 
     this.intervalFunction.set()
   }
 
-  stop() {
+  // FIX: 添加 'void' 返回类型
+  stop(): void {
     if(!this.intervalFunction) return
     this.intervalFunction.remove();
     this.intervalFunction = undefined;
   }
 
-  update(diff) {
+  update(diff: number): number {
     let nextShown = (this.shown + 1) % this.imagesCount;
-    this.elements[this.shown].style.opacity = 0;
-    this.elements[nextShown].style.opacity = 1;
+    this.elements[this.shown]!.style.opacity = "0"; 
+    this.elements[nextShown]!.style.opacity = "1";
 
     this.shown = nextShown; // increments the shown id
     return Math.min(diff, 0.2);

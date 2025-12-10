@@ -1,4 +1,4 @@
-import type { Range } from "./range";
+import type { NumberRange } from "./numberRange";
 
 export class Vector {
   constructor(public x: number, public y: number) {}
@@ -47,28 +47,5 @@ export class Vector {
 
   div(number: number) {
     return new Vector(this.x / number, this.y / number);
-  }
-
-  // Following requires sorted vectors
-
-  inRange(number: number) {
-    return this.x <= number && number <= this.y;
-  }
-
-  isIntersected(vector: Vector) {
-    return (
-      this.inRange(vector.x) ||
-      this.inRange(vector.y) ||
-      vector.inRange(this.x) ||
-      vector.inRange(this.y)
-    );
-  }
-
-  moveInRange(move: number, range: Range) {
-    const RealMove =
-      move > 0
-        ? Math.min(range.end - this.y, move)
-        : Math.max(range.start - this.x, move);
-    return this.addNum(RealMove);
   }
 }
