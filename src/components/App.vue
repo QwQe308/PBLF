@@ -1,9 +1,11 @@
 <script lang="ts">
 import { Interval } from "../support/interval";
-import Window from "./constructors/window.vue";
+import DesktopIcon from "./constructors/desktopIcon.vue";
+import FooterNavigation from "./constructors/footerNavigation.vue";
+import StartNavigation from "./constructors/startNavigation.vue";
 
-type tabInfos = {
-  name: string;
+interface tabInfos {
+  id: string;
   index: number;
   hidden: boolean;
 };
@@ -11,7 +13,9 @@ type tabInfos = {
 export default {
   name: "App",
   components: {
-    Window,
+    StartNavigation,
+    FooterNavigation,
+    DesktopIcon,
   },
   data() {
     return {
@@ -52,11 +56,20 @@ export default {
 
     toggleWindowHide(item: tabInfos) {
       item.hidden = !item.hidden;
+      item.index = this.currentTabIndex++;
     },
 
     closeWindow(item: tabInfos) {
       this.currentTabs.delete(item);
     },
+
+    createWindow(id: string){
+      this.currentTabs.add({
+        id: id,
+        index: this.currentTabIndex ++,
+        hidden: false
+      })
+    }
   },
 
   mounted() {
@@ -72,12 +85,13 @@ export default {
     <div class="main-content">
       <div id="icons"></div>
       <div id="windows">
-        <Window
+        <component
           v-for="item in currentTabs"
+          :is="item.id"
           :index="item.index"
-          :name="item.name"
           @hide="toggleWindowHide(item)"
-          v-focus="handleWindowFocus(item)"
+          @focus="handleWindowFocus(item)"
+          @createWindow="createWindow(item.id)"
         />
       </div>
     </div>
@@ -87,7 +101,8 @@ export default {
           <img class="start-icon" src="/resources/footer-icons/w95_40.ico" />
           <span class="start-text">Start</span>
         </button>
-        <div id="start-navigation" class="border-outset inactive"></div>
+        <div id="start-navigation" class="border-outset inactive">
+        </div>
         <div id="footer-navigation"></div>
         <div class="border-inset time">
           <span id="time" class="time-text"> {{ processedTime }} </span>
@@ -203,20 +218,6 @@ footer {
   flex-grow: 1;
   max-width: calc(100% - 150px);
   margin: 0 5px;
-}
-
-.footer-navigation-block {
-  display: flex;
-  width: 200px;
-  height: 25px;
-  flex-shrink: 1;
-  margin: auto 3px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  flex-wrap: nowrap;
-  text-wrap-mode: nowrap;
-  font-family: var(--font-Sans-Serif);
-  font-size: 14px;
 }
 
 #start-navigation.inactive {

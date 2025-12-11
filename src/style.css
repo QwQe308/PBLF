@@ -119,20 +119,6 @@ input{
   transform: translateY(50%);
 }
 
-.IE-navigation{
-  display: flex;
-  justify-items: center;
-  margin-bottom: 2px;
-}
-
-.IE-address-input{
-  flex-grow: 1;
-}
-
-.IE-inner{
-  flex-grow: 1;
-}
-
 .alert-error-img{
   display: block;
   width: 32px;

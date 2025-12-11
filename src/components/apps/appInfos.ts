@@ -1,11 +1,8 @@
-import type { Component } from "vue"
-
-type appInfo = Record<string, {
-  title: string,
-  icon: string,
-  component: Component
-}>
-
-export const Apps: appInfo = {
-
+export interface appInfo {
+  title: string;
+  icon: string;
 }
+
+type appInfos = Record<string, appInfo>;
+
+export const AppInfos: appInfos = {};

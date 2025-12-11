@@ -96,11 +96,7 @@ export class FlappyBirdWindow extends Window {
   addObstacle(obstacle){
     this.flyAreaElement.append(obstacle.element)
   }
-/* 
-  onResize(preRect, newRect){
-    this.contentElement.style.transform = `scale(${newRect.height / preRect.height})`
-  }
- */
+
   handleClick() {
     if(this.gameoverCounter > 0) return
 

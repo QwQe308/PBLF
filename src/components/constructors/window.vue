@@ -1,29 +1,36 @@
 <script lang="ts">
 import { Vector } from "../../support/vector";
-import type { StyleRecord } from "../../support/types";
-import { Apps } from "../apps/appInfos";
-import type { Component } from "vue";
-
-function getComponents(){
-  let result:Record<string, Component> = {}
-  for(let i in Apps){
-    result[i] = Apps[i].component
-  }
-}
+import type { ClassRecord, StyleRecord } from "../../support/types";
 
 export default {
   name: "Window",
-  components: {
-
-  },
   props: {
     index: {
       type: Number,
       required: true,
     },
-    name: {
+    title: {
       type: String,
       required: true,
+    },
+    icon: {
+      type: String,
+      required: true,
+    },
+    canHide: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+    canFullscreen: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+    canClose: {
+      type: Boolean,
+      required: false,
+      default: true
     },
   },
   data() {
@@ -49,13 +56,11 @@ export default {
       };
     },
 
-    icon(): string {
-      return ""; // TODO
-    },
-
-    title(): string {
-      return "";
-    },
+    class(): ClassRecord {
+      return {
+        fullscreen: this.fullscreen
+      }
+    }
   },
 
   methods: {
@@ -101,16 +106,16 @@ export default {
 </script>
 
 <template>
-  <div class="window" tabindex="0" :style="style">
+  <div class="window" tabindex="0" :style="style" :class="class">
     <div class="window-warpper">
-      <div class="window-header" v-mousedown="startDrag">
+      <div class="window-header" @mousedown="startDrag">
         <div class="left">
           <span class="window-title" id="window-title">
             <img class="title-icon" :src="icon" /> {{ title }}
           </span>
         </div>
         <div class="right">
-          <div id="hide" v-click="hide">
+          <div v-if="canHide" id="hide" @click="hide">
             <img
               class="window-icon basic-button"
               src="/resources/window-icons/minimize.svg"
@@ -118,10 +123,10 @@ export default {
             />
           </div>
           <div
-            v-if="!fullscreen"
+            v-if="canFullscreen && !fullscreen"
             id="fullscreen"
             class="fullscreen-toggler"
-            v-click="toggleFullscreen"
+            @click="toggleFullscreen"
           >
             <img
               class="window-icon basic-button"
@@ -130,10 +135,10 @@ export default {
             />
           </div>
           <div
-            v-else
+            v-else-if="canFullscreen"
             id="resumeFullscreen"
-            class="fullscreen-toggler inactive"
-            v-click="toggleFullscreen"
+            class="fullscreen-toggler"
+            @click="toggleFullscreen"
           >
             <img
               class="window-icon basic-button"
@@ -141,7 +146,7 @@ export default {
               draggable="false"
             />
           </div>
-          <div id="close" v-click="close">
+          <div v-if="canClose" id="close" @click="close">
             <img
               class="window-icon basic-button"
               src="/resources/window-icons/close.svg"
@@ -150,7 +155,7 @@ export default {
           </div>
         </div>
       </div>
-      <window-content />
+      <slot></slot>
     </div>
   </div>
 </template>
@@ -177,10 +182,6 @@ export default {
   box-sizing: content-box;
 
   will-change: transform;
-}
-
-.window.inactive {
-  visibility: hidden;
 }
 
 .window.fullscreen {
@@ -215,13 +216,6 @@ export default {
   text-align: center;
 }
 
-.title-icon {
-  display: block;
-  margin: auto 2px auto 0;
-  height: 18px;
-  width: 18px;
-}
-
 .window-header > .left {
   display: flex;
   flex-direction: row;
@@ -240,10 +234,6 @@ export default {
   width: 16px;
   margin: auto 2px;
   cursor: var(--pointer);
-}
-
-.fullscreen-toggler.inactive {
-  display: none;
 }
 
 .window-content {
