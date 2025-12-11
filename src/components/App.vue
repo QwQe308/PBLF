@@ -1,14 +1,28 @@
+// src/components/App.vue
 <script lang="ts">
 import { Interval } from "../support/interval";
 import DesktopIcon from "./constructors/desktopIcon.vue";
 import FooterNavigation from "./constructors/footerNavigation.vue";
 import StartNavigation from "./constructors/startNavigation.vue";
+import { AppInfos, type AppEntryInfo } from "./apps/appInfos";
+import InternetExplorer from "./apps/internetExplorer/internetExplorer.vue";
+import WindowSpawner, { type CustomWindowSpawnEvent } from "./apps/windowSpawner/windowSpawner.vue";
+import SpawnedWindow, { type SpawnedWindowProps } from "./apps/windowSpawner/spawnedWindow.vue";
 
-interface tabInfos {
-  id: string;
+// 定义运行中的窗口实例类型
+interface WindowInstance {
+  windowId: string;
+  appId: string;
   index: number;
   hidden: boolean;
-};
+  title: string;
+  icon: string;
+  componentName: string;
+  positionX: number;
+  positionY: number;
+  isFullscreen: boolean;
+  customProps?: Partial<SpawnedWindowProps>;
+}
 
 export default {
   name: "App",
@@ -16,17 +30,23 @@ export default {
     StartNavigation,
     FooterNavigation,
     DesktopIcon,
+    InternetExplorer,
+    WindowSpawner,
+    SpawnedWindow
   },
   data() {
     return {
       interval: undefined as Interval | undefined,
       currentTime: new Date(),
-      currentTabs: new Set() as Set<tabInfos>,
+      currentWindows: new Map<string, WindowInstance>(),
       currentTabIndex: 0,
+      isStartMenuOpen: false,
+      AppInfos: AppInfos,
     };
   },
 
   computed: {
+    // ... (processedTime 和 desktopIcons 保持不变) ...
     processedTime() {
       const Hours = this.currentTime.getHours();
       const Minutes = this.currentTime.getMinutes();
@@ -43,6 +63,14 @@ export default {
         return `${Hours - 12}: ${displayedMinutes} PM`;
       }
     },
+    desktopIcons(): AppEntryInfo[] {
+      return Object.values(this.AppInfos).filter((info) => info.showOnDesktop);
+    },
+    sortedWindows(): WindowInstance[] {
+      return Array.from(this.currentWindows.values()).sort(
+        (a, b) => a.index - b.index
+      );
+    },
   },
 
   methods: {
@@ -50,26 +78,117 @@ export default {
       this.currentTime = new Date();
     },
 
-    handleWindowFocus(item: tabInfos) {
-      item.index = this.currentTabIndex++;
+    getWindow(windowId: string): WindowInstance | undefined {
+      return this.currentWindows.get(windowId);
     },
 
-    toggleWindowHide(item: tabInfos) {
-      item.hidden = !item.hidden;
-      item.index = this.currentTabIndex++;
+    handleWindowFocus(windowId: string) {
+      const item = this.getWindow(windowId);
+      if (item) {
+        item.index = this.currentTabIndex++; // 提升 Z-index (这是导致问题的根源，但现在状态已提升，不会丢失数据)
+        item.hidden = false; // 聚焦时取消隐藏 (最小化)
+      }
     },
 
-    closeWindow(item: tabInfos) {
-      this.currentTabs.delete(item);
+    toggleWindowHide(windowId: string) {
+      const item = this.getWindow(windowId);
+      if (item) {
+        item.hidden = !item.hidden;
+        if (!item.hidden) {
+          item.index = this.currentTabIndex++; // 重新显示时提升 Z-index
+        }
+      }
     },
 
-    createWindow(id: string){
-      this.currentTabs.add({
-        id: id,
-        index: this.currentTabIndex ++,
-        hidden: false
-      })
-    }
+    closeWindow(windowId: string) {
+      this.currentWindows.delete(windowId);
+    },
+
+    // 【新增】更新窗口的位置
+    updateWindowPosition(windowId: string, x: number, y: number) {
+      const item = this.getWindow(windowId);
+      if (item) {
+        item.positionX = x;
+        item.positionY = y;
+      }
+    },
+
+    // 【新增】更新窗口的全屏状态
+    updateWindowFullscreen(windowId: string, isFullscreen: boolean) {
+      const item = this.getWindow(windowId);
+      if (item) {
+        item.isFullscreen = isFullscreen;
+        this.handleWindowFocus(windowId); // 全屏/恢复时也应聚焦
+      }
+    },// 【新增】处理自定义窗口生成事件
+    handleCustomSpawn(payload: CustomWindowSpawnEvent){
+      this.createWindow(payload.appId, payload);
+    },
+    
+    // 【修改】重载 createWindow 以支持可选的 customPayload
+    createWindow(appId: string, customPayload?: CustomWindowSpawnEvent){
+      const appInfo: AppEntryInfo | undefined = AppInfos[appId];
+
+      if (!appInfo) return;
+      if (!appInfo.windowComponent) {
+        if (appId === "shutdown") {
+          console.log("Shutting down... (action not implemented)");
+        }
+        this.isStartMenuOpen = false;
+        return;
+      }
+
+      if (appInfo.isSingleInstance) {
+        const existingWindow = Array.from(this.currentWindows.values()).find(
+          (w) => w.appId === appId
+        );
+        if (existingWindow) {
+          this.handleWindowFocus(existingWindow.windowId);
+          this.isStartMenuOpen = false;
+          return;
+        }
+      }
+
+      const newWindowId = `${appId}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const newIndex = this.currentTabIndex++;
+      
+      const offset = newIndex % 10;
+      const positionX = offset * 20 + 60 + (offset) * 2;
+      const positionY = offset * 20 + 100 + (offset) * 5;
+
+      const newWindow: WindowInstance = {
+        windowId: newWindowId,
+        appId: appId,
+        index: newIndex,
+        hidden: false,
+        // 使用自定义 Payload 的 title 和 icon
+        title: customPayload?.title || appInfo.title,
+        icon: customPayload?.icon || appInfo.icon,
+        componentName: appInfo.windowComponent,
+        positionX: positionX,
+        positionY: positionY,
+        isFullscreen: false,
+      };
+
+      // 【新增】存储自定义 Props
+      if (customPayload) {
+          newWindow.customProps = {
+              content: customPayload.content,
+              dynamicWidth: customPayload.width,
+              dynamicHeight: customPayload.height,
+              canHide: customPayload.canHide,
+              canFullscreen: customPayload.canFullscreen,
+              canClose: customPayload.canClose,
+          }
+      }
+
+      this.currentWindows.set(newWindowId, newWindow);
+      this.isStartMenuOpen = false;
+    },
+
+    toggleStartMenu() {
+      this.isStartMenuOpen = !this.isStartMenuOpen;
+    },
   },
 
   mounted() {
@@ -83,27 +202,72 @@ export default {
 <template>
   <div>
     <div class="main-content">
-      <div id="icons"></div>
+      <div id="icons">
+        <DesktopIcon
+          v-for="info in desktopIcons"
+          :key="info.appId"
+          :title="info.title"
+          :icon="info.icon"
+          @launch="createWindow(info.appId)"
+        />
+      </div>
       <div id="windows">
         <component
-          v-for="item in currentTabs"
-          :is="item.id"
+          v-for="item in sortedWindows.filter(w => !w.hidden)"
+          :key="item.windowId"
+          :is="item.componentName"
           :index="item.index"
-          @hide="toggleWindowHide(item)"
-          @focus="handleWindowFocus(item)"
-          @createWindow="createWindow(item.id)"
+          :title="item.title"
+          :icon="item.icon"
+          :windowId="item.windowId"
+          
+          :positionX="item.positionX"
+          :positionY="item.positionY"
+          :isFullscreen="item.isFullscreen"
+          
+          v-bind="item.customProps" 
+          
+          @spawnCustomWindow="handleCustomSpawn" 
+          
+          @update:position="updateWindowPosition"
+          @update:fullscreen="updateWindowFullscreen"
+          @hide="toggleWindowHide"
+          @focus="handleWindowFocus"
+          @close="closeWindow"
+          
+          @createWindow="createWindow(item.appId)"
         />
       </div>
     </div>
     <footer class="footer">
       <div class="footer-warpper">
-        <button id="start-button" class="basic-button start-button">
+        <button
+          id="start-button"
+          class="basic-button start-button"
+          @click="toggleStartMenu"
+        >
           <img class="start-icon" src="/resources/footer-icons/w95_40.ico" />
           <span class="start-text">Start</span>
         </button>
-        <div id="start-navigation" class="border-outset inactive">
+        <div
+          id="start-navigation"
+          class="border-outset"
+          :class="{ inactive: !isStartMenuOpen }"
+        >
+          <StartNavigation @launch-app="createWindow" />
         </div>
-        <div id="footer-navigation"></div>
+        <div id="footer-navigation">
+          <FooterNavigation
+            v-for="item in sortedWindows"
+            :key="item.windowId"
+            :title="item.title"
+            :icon="item.icon"
+            :windowId="item.windowId"
+            :isHidden="item.hidden"
+            @click="toggleWindowHide"
+            @focus="handleWindowFocus"
+          />
+        </div>
         <div class="border-inset time">
           <span id="time" class="time-text"> {{ processedTime }} </span>
         </div>
@@ -113,6 +277,7 @@ export default {
 </template>
 
 <style scoped>
+/* 样式保持不变 */
 .main-content {
   display: flex;
   position: relative;

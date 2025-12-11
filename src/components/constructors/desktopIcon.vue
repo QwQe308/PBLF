@@ -1,36 +1,56 @@
 <script lang="ts">
-import { AppInfos } from "../apps/appInfos";
-import type { appInfo } from "../apps/appInfos";
-
 export default {
-  name: "desktopIcon",
-
+  name: "DesktopIcon",
+  
   props: {
-    id: {
+    title: {
+      type: String,
+      required: true,
+    },
+    icon: {
       type: String,
       required: true,
     },
   },
 
-  computed: {
-    info(): appInfo{
-      return AppInfos[this.id]
-    }
-  },
-
   methods: {
-    openWindow() {
-      this.$emit("openWindow");
+    handleDoubleClick() {
+      this.$emit("launch");
     },
   },
+  
+  emits: ['launch']
 };
 </script>
 
 <template>
-  <div class="desktop-icon-container" @click="openWindow">
-    <img src="icon" />
-    <span>{{ info!.title }}</span>
+  <div class="desktop-icon-container" @dblclick="handleDoubleClick"> 
+    <img :src="icon" draggable="false" />
+    <span>{{ title }}</span>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.desktop-icon-container {
+  display: flex;
+  flex-direction: column;
+  height: 70px;
+  width: 88px;
+  font-size: 12px;
+  color: #fffe;
+
+  cursor: var(--pointer);
+  user-select: none;
+}
+
+.desktop-icon-container img {
+  height: 32px;
+  width: 32px;
+  margin: auto auto 3px auto;
+}
+
+.desktop-icon-container span {
+  text-wrap-mode: nowrap; 
+  margin: 0 auto auto auto;
+}
+</style>

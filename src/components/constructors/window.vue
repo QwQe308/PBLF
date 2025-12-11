@@ -1,3 +1,4 @@
+// src/components/constructors/window.vue
 <script lang="ts">
 import { Vector } from "../../support/vector";
 import type { ClassRecord, StyleRecord } from "../../support/types";
@@ -5,67 +6,55 @@ import type { ClassRecord, StyleRecord } from "../../support/types";
 export default {
   name: "Window",
   props: {
-    index: {
-      type: Number,
-      required: true,
-    },
-    title: {
-      type: String,
-      required: true,
-    },
-    icon: {
-      type: String,
-      required: true,
-    },
-    canHide: {
-      type: Boolean,
-      required: false,
-      default: true
-    },
-    canFullscreen: {
-      type: Boolean,
-      required: false,
-      default: true
-    },
-    canClose: {
-      type: Boolean,
-      required: false,
-      default: true
-    },
+    windowId: { type: String, required: true },
+    index: { type: Number, required: true },
+    title: { type: String, required: true },
+    icon: { type: String, required: true },
+    canHide: { type: Boolean, required: false, default: true },
+    canFullscreen: { type: Boolean, required: false, default: true },
+    canClose: { type: Boolean, required: false, default: true },
+
+    positionX: { type: Number, required: true },
+    positionY: { type: Number, required: true },
+    isFullscreen: { type: Boolean, required: true },
   },
   data() {
     return {
-      position: new Vector(0, 0),
       dragging: false,
       recordedMousePosition: new Vector(0, 0),
-      fullscreen: false,
-      hidden: false,
     };
   },
 
+  // 【新增】定义发出的自定义状态更新事件
+  emits: ["hide", "focus", "close", "update:position", "update:fullscreen"],
+
   computed: {
     style(): StyleRecord {
-      if (this.fullscreen) return {};
+      if (this.isFullscreen) return {};
 
       return {
-        transform: `translate(${
-          (this.index % 10) * 20 + 60 + (this.index - (this.index % 10)) * 2
-        }px, ${
-          (this.index % 10) * 20 + 100 + (this.index - (this.index % 10)) * 5
-        }px)`,
+        transform: `translate(${this.positionX}px, ${this.positionY}px)`,
+        zIndex: (this.index + 100).toString(),
       };
     },
 
     class(): ClassRecord {
       return {
-        fullscreen: this.fullscreen
-      }
-    }
+        fullscreen: this.isFullscreen,
+      };
+    },
   },
 
   methods: {
+    focus() {
+      this.$emit("focus", this.windowId);
+    },
+
     startDrag(event: MouseEvent) {
-      if (this.fullscreen) return;
+      this.focus();
+      // 【修改】使用 isFullscreen prop
+      if (this.isFullscreen) return;
+
       this.dragging = true;
       this.recordedMousePosition = new Vector(event.clientX, event.clientY);
 
@@ -75,11 +64,15 @@ export default {
     },
 
     drag(event: MouseEvent) {
-      if (!this.dragging || this.fullscreen) return;
+      if (!this.dragging || this.isFullscreen) return;
+
       const NewMousePosition = new Vector(event.clientX, event.clientY);
       const DeltaPosition = NewMousePosition.sub(this.recordedMousePosition);
 
-      this.position = this.position.add(DeltaPosition);
+      const newX = this.positionX + DeltaPosition.x;
+      const newY = this.positionY + DeltaPosition.y;
+
+      this.$emit("update:position", this.windowId, newX, newY);
 
       this.recordedMousePosition = NewMousePosition;
     },
@@ -93,20 +86,22 @@ export default {
     },
 
     hide() {
-      this.$emit("hide");
+      this.$emit("hide", this.windowId);
     },
 
-    toggleFullscreen() {},
+    toggleFullscreen() {
+      this.$emit("update:fullscreen", this.windowId, !this.isFullscreen);
+    },
 
     close() {
-      this.$emit("close");
+      this.$emit("close", this.windowId);
     },
   },
 };
 </script>
 
 <template>
-  <div class="window" tabindex="0" :style="style" :class="class">
+  <div class="window" tabindex="0" :style="style" :class="class" @click="focus">
     <div class="window-warpper">
       <div class="window-header" @mousedown="startDrag">
         <div class="left">
@@ -123,7 +118,7 @@ export default {
             />
           </div>
           <div
-            v-if="canFullscreen && !fullscreen"
+            v-if="canFullscreen && !isFullscreen"
             id="fullscreen"
             class="fullscreen-toggler"
             @click="toggleFullscreen"
@@ -155,7 +150,9 @@ export default {
           </div>
         </div>
       </div>
-      <slot></slot>
+      <div class="window-content">
+        <slot></slot>
+      </div>
     </div>
   </div>
 </template>
@@ -190,6 +187,7 @@ export default {
   top: 0;
   left: -2px;
   transform: none;
+  z-index: 999999 !important;
 }
 
 .window-warpper {
@@ -214,6 +212,13 @@ export default {
   display: flex;
   margin: auto 0 auto 3px;
   text-align: center;
+}
+
+.title-icon {
+  display: block;
+  margin: auto 2px auto 0;
+  height: 18px;
+  width: 18px;
 }
 
 .window-header > .left {
@@ -242,5 +247,7 @@ export default {
   flex-grow: 1;
   margin: 10px;
   overflow: hidden;
+  min-width: 200px;
+  min-height: 100px;
 }
 </style>

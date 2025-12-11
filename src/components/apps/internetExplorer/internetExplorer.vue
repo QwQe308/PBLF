@@ -6,14 +6,16 @@ export default {
   components: {
     Window,
   },
-
   props: {
-    index: {
-      type: Number,
-      required: true,
-    },
-  },
+    windowId: { type: String, required: true },
+    index: { type: Number, required: true },
+    title: { type: String, required: true },
+    icon: { type: String, required: true },
 
+    positionX: { type: Number, required: true },
+    positionY: { type: Number, required: true },
+    isFullscreen: { type: Boolean, required: true },
+  },
   data() {
     return {
       inputLink: "https://www.lingrui.club",
@@ -31,17 +33,28 @@ export default {
       this.$emit("hide");
     },
   },
+  emits: ["hide", "focus", "close", "createWindow"],
 };
 </script>
 
 <template>
   <Window
+    :windowId="windowId"
     :index="index"
-    title="Internet Explorer"
-    icon="/resources/desktop-icons/internet-explorer.ico"
-    @hide="handleHide"
+    :title="title"
+    :icon="icon"
+    :canHide="true"
+    :canFullscreen="true"
+    :canClose="true"
+    :positionX="positionX"
+    :positionY="positionY"
+    :isFullscreen="isFullscreen"
+    @hide="$emit('hide', windowId)"
+    @focus="$emit('focus', windowId)"
+    @close="$emit('close', windowId)"
+    @createWindow="$emit('createWindow')"
   >
-    <div class="window-content column">
+    <div class="column content">
       <div class="IE-navigation">
         <span>Address:</span>
         <input
@@ -49,7 +62,7 @@ export default {
           type="string"
           class="basic-input IE-address-input"
           value="https://www.lingrui.club"
-          v-keydown="loadPage"
+          @keydown="loadPage"
           v-model="inputLink"
         />
       </div>
@@ -59,17 +72,23 @@ export default {
 </template>
 
 <style scoped>
-.IE-navigation {
+.content {
+  height: 800px;
+  width: 1200px;
+}
+
+.IE-navigation{
   display: flex;
   justify-items: center;
   margin-bottom: 2px;
 }
 
-.IE-address-input {
+.IE-address-input{
+  margin-left: 2px;
   flex-grow: 1;
 }
 
-.IE-inner {
+.IE-inner{
   flex-grow: 1;
 }
 </style>
