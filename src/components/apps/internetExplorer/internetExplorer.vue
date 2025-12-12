@@ -9,6 +9,7 @@ export default {
   props: {
     windowId: { type: String, required: true },
     index: { type: Number, required: true },
+    layer: { type: Number, required: true },
     title: { type: String, required: true },
     icon: { type: String, required: true },
     isHidden: { type: Boolean, required: true },
@@ -34,6 +35,7 @@ export default {
   <Window
     :windowId="windowId"
     :index="index"
+    :layer="layer"
     :title="title"
     :icon="icon"
     :isHidden="isHidden"

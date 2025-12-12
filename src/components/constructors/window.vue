@@ -8,6 +8,7 @@ export default {
   props: {
     windowId: { type: String, required: true },
     index: { type: Number, required: true },
+    layer: { type: Number, required: true },
     title: { type: String, required: true },
     icon: { type: String, required: true },
     isHidden: { type: Boolean, required: true },
@@ -21,8 +22,8 @@ export default {
   },
   data() {
     const offset = this.index % 10;
-    const positionX = offset * 20 + 60 + offset * 2;
-    const positionY = offset * 20 + 100 + offset * 5;
+    const positionX = this.index * 3 + 160 + offset * 20;
+    const positionY = this.index * 2 + 100 + offset * 12;
 
     return {
       dragging: false,
@@ -43,7 +44,7 @@ export default {
         width: this.isFullscreen ? "" : `${this.width}px`,
         height: this.isFullscreen ? "" : `${this.height}px`,
         transform: `translate(${this.position.x}px, ${this.position.y}px)`,
-        zIndex: (this.index + 100).toString(),
+        zIndex: (this.layer + 100).toString(),
       };
     },
 

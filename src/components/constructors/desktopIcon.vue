@@ -14,7 +14,7 @@ export default {
   },
 
   methods: {
-    handleDoubleClick() {
+    handleClick() {
       this.$emit("launch");
     },
   },
@@ -24,7 +24,7 @@ export default {
 </script>
 
 <template>
-  <div class="desktop-icon-container" @click="handleDoubleClick"> 
+  <div class="desktop-icon-container" @click="handleClick"> 
     <img :src="icon" draggable="false" />
     <span>{{ title }}</span>
   </div>

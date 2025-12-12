@@ -9,12 +9,14 @@ import InternetExplorer from "./apps/internetExplorer/internetExplorer.vue";
 import WindowSpawner from "./apps/windowSpawner/windowSpawner.vue";
 import SpawnedWindow, { type SpawnedWindowProps } from "./apps/windowSpawner/spawnedWindow.vue";
 import AlertWindow from "./apps/windowSpawner/alertWindow.vue";
+import Welcome from "./apps/welcome/welcome.vue";
 
 // 定义运行中的窗口实例类型
 interface WindowInstance {
   windowId: string;
   appId: string;
   index: number;
+  layer: number;
   hidden: boolean;
   title: string;
   icon: string;
@@ -28,7 +30,6 @@ export interface CustomWindowSpawnEvent {
   height?: number;
   content?: string;
   icon?: string;
-  appId?: string;
   canHide?: boolean;
   canFullscreen?: boolean;
   canClose?: boolean;
@@ -41,6 +42,7 @@ export default {
     FooterNavigation,
     DesktopIcon,
     AlertWindow,
+    Welcome,
     InternetExplorer,
     WindowSpawner,
     SpawnedWindow
@@ -50,7 +52,8 @@ export default {
       interval: undefined as Interval | undefined,
       currentTime: new Date(),
       currentWindows: {} as Record<string, WindowInstance>,
-      currentTabIndex: 0,
+      currentTabIndex: 9,
+      currentTabLayer: 0,
       isStartMenuOpen: false,
       AppInfos: AppInfos,
     };
@@ -90,7 +93,7 @@ export default {
     handleWindowFocus(windowId: string) {
       const item = this.getWindow(windowId);
       if (item) {
-        item.index = this.currentTabIndex++;
+        item.layer = this.currentTabLayer++;
         item.hidden = false;
       }
     },
@@ -100,7 +103,7 @@ export default {
       if (item) {
         item.hidden = !item.hidden;
         if (!item.hidden) {
-          item.index = this.currentTabIndex++;
+          item.layer = this.currentTabLayer++;
         }
       }
     },
@@ -128,12 +131,12 @@ export default {
       }
 
       const newWindowId = `${appId}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      const newIndex = this.currentTabIndex++;
 
       const newWindow: WindowInstance = {
         windowId: newWindowId,
         appId: appId,
-        index: newIndex,
+        index: this.currentTabIndex++,
+        layer: this.currentTabLayer,
         hidden: false,
         title: customPayload?.title || appInfo.title,
         icon: customPayload?.icon || appInfo.icon,
@@ -169,7 +172,9 @@ export default {
     this.interval.set();
     Interval.startMainInterval(120);
 
-    window.alert = (content: string) => {this.alert(content)}
+    window.alert = (content: string) => {this.alert(content)};
+
+    this.createWindow("Welcome")
   },
 };
 </script>
@@ -192,6 +197,7 @@ export default {
           :key="item.windowId"
           :is="item.componentName"
           :index="item.index"
+          :layer="item.layer"
           :title="item.title"
           :icon="item.icon"
           :windowId="item.windowId"
@@ -205,7 +211,7 @@ export default {
           @focus="handleWindowFocus"
           @close="closeWindow"
           
-          @createWindow="createWindow(item.appId)"
+          @createWindow="createWindow"
         />
       </div>
     </div>

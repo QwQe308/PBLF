@@ -1,6 +1,6 @@
 /**
  * @interface AppEntryInfo Info for a sigle app / window.
- * 
+ *
  */
 export interface AppEntryInfo {
   // Title of the app
@@ -33,9 +33,20 @@ export const AppInfos: AppInfos = {
     isSingleInstance: false,
   },
 
+  // Welcome Window
+  Welcome: {
+    appId: "Welcome",
+    title: "Welcome",
+    icon: "/resources/window-icons/welcome.ico",
+    windowComponent: "Welcome",
+    showInStartMenu: true,
+    showOnDesktop: false,
+    isSingleInstance: false,
+  },
+
   // Internet Explorer
-  internetExplorer: {
-    appId: "internetExplorer",
+  InternetExplorer: {
+    appId: "InternetExplorer",
     title: "Internet Explorer",
     icon: "/resources/desktop-icons/internet-explorer.ico",
     windowComponent: "InternetExplorer", // Name of the component
@@ -45,8 +56,8 @@ export const AppInfos: AppInfos = {
   },
 
   // Window Spawner
-  windowSpawner: {
-    appId: "windowSpawner",
+  WindowSpawner: {
+    appId: "WindowSpawner",
     title: "Window Spawner",
     icon: "/resources/desktop-icons/window-spawner.ico",
     windowComponent: "WindowSpawner",
@@ -54,8 +65,8 @@ export const AppInfos: AppInfos = {
     showOnDesktop: true,
     isSingleInstance: false,
   },
-  spawnedWindow: {
-    appId: "spawnedWindow",
+  SpawnedWindow: {
+    appId: "SpawnedWindow",
     title: "Spawned Window",
     icon: "/resources/desktop-icons/window-spawner.ico",
     windowComponent: "SpawnedWindow",
