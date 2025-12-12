@@ -24,7 +24,7 @@ export default {
 </script>
 
 <template>
-  <div class="desktop-icon-container" @dblclick="handleDoubleClick"> 
+  <div class="desktop-icon-container" @click="handleDoubleClick"> 
     <img :src="icon" draggable="false" />
     <span>{{ title }}</span>
   </div>

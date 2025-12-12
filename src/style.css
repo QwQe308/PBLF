@@ -422,3 +422,8 @@ input{
 .checkbox:checked + span{
   visibility: visible;
 }
+
+.warpper{
+  display: flex;
+  flex-grow: 1;
+}

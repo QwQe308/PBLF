@@ -25,22 +25,23 @@ export default {
 </script>
 
 <template>
-  <div class="start-navigation-content">
+  <div class="warpper column">
     <div
       v-for="item in startMenuItems"
       :key="item.appId"
       class="start-navigation-block"
       @click="handleClick(item.appId)"
     >
-      <img :src="item.icon" draggable="false" />
-      <span>{{ item.title }}</span>
+      <div class="row y-center">
+        <img :src="item.icon" draggable="false" />
+        <span>{{ item.title }}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .start-navigation-content {
-  /* 容器样式，与 App.vue 中的 #start-navigation 配合 */
   display: flex;
   flex-direction: column-reverse;
   background-color: #c3c3c3;
@@ -51,12 +52,9 @@ export default {
 .start-navigation-block {
   display: flex;
   flex-direction: row;
-  padding: 3px 4px; /* 调整为更像菜单项的样式 */
-  height: 20px;
-  align-items: center;
+  padding: 10px;
+  height: 50px;
   cursor: var(--pointer);
-  width: 100%;
-  box-sizing: border-box;
 }
 
 .start-navigation-block:hover {
@@ -73,7 +71,5 @@ export default {
 
 .start-navigation-block > span {
   display: block;
-  flex-grow: 1;
-  white-space: nowrap;
 }
 </style>

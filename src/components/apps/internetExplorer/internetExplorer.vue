@@ -11,10 +11,7 @@ export default {
     index: { type: Number, required: true },
     title: { type: String, required: true },
     icon: { type: String, required: true },
-
-    positionX: { type: Number, required: true },
-    positionY: { type: Number, required: true },
-    isFullscreen: { type: Boolean, required: true },
+    isHidden: { type: Boolean, required: true },
   },
   data() {
     return {
@@ -28,10 +25,6 @@ export default {
       if (event.key !== "Enter") return;
       this.iframeLink = this.inputLink;
     },
-
-    handleHide() {
-      this.$emit("hide");
-    },
   },
   emits: ["hide", "focus", "close", "createWindow"],
 };
@@ -43,18 +36,21 @@ export default {
     :index="index"
     :title="title"
     :icon="icon"
+    :isHidden="isHidden"
+
+    :width="1200"
+    :height="800"
+    
     :canHide="true"
     :canFullscreen="true"
     :canClose="true"
-    :positionX="positionX"
-    :positionY="positionY"
-    :isFullscreen="isFullscreen"
+    
     @hide="$emit('hide', windowId)"
     @focus="$emit('focus', windowId)"
     @close="$emit('close', windowId)"
     @createWindow="$emit('createWindow')"
   >
-    <div class="column content">
+    <div class="column warpper">
       <div class="IE-navigation">
         <span>Address:</span>
         <input
@@ -72,11 +68,6 @@ export default {
 </template>
 
 <style scoped>
-.content {
-  height: 800px;
-  width: 1200px;
-}
-
 .IE-navigation{
   display: flex;
   justify-items: center;

@@ -1,6 +1,7 @@
 <script lang="ts">
 import Window from "../../constructors/window.vue";
 import type { StyleRecord } from "../../../support/types";
+import type { CustomWindowSpawnEvent } from "../../App.vue";
 
 interface WindowToSpawnData {
   title: string;
@@ -12,53 +13,33 @@ interface WindowToSpawnData {
   noClose: boolean;
 }
 
-// 定义 WindowSpawner 传递给 App.vue 的数据结构
-export interface CustomWindowSpawnEvent {
-  title: string;
-  width: number;
-  height: number;
-  content: string;
-  icon: string;
-  appId: string;
-  canHide: boolean;
-  canFullscreen: boolean;
-  canClose: boolean;
-}
-
 export default {
   name: "WindowSpawner",
   components: {
     Window,
   },
   
-  // 必须显式声明所有 props 以满足 TS 检查
   props: {
     windowId: { type: String, required: true },
     index: { type: Number, required: true },
     title: { type: String, required: true },
     icon: { type: String, required: true },
-    positionX: { type: Number, required: true },
-    positionY: { type: Number, required: true },
-    isFullscreen: { type: Boolean, required: true },
+    isHidden: { type: Boolean, required: true },
   },
   
-  // 显式声明所有需要转发的事件，以及自身发出的 spawnCustomWindow 事件
   emits: [
+    'hide',
     'createWindow', 
-    'hide', 
-    'focus', 
+    'mousedown', 
     'close', 
-    'update:position', 
-    'update:fullscreen',
-    'spawnCustomWindow' // 自定义的创建窗口事件
+    'spawnCustomWindow'
   ],
   
   data() {
-    // 模仿原始 JS 的 this.windowToSpawn 结构
     return {
       windowToSpawn: {
         title: "新窗口",
-        width: 700 as number | string, // 初始值模仿原文件，注意类型可以是 string
+        width: 700 as number | string,
         height: 400 as number | string,
         content: "Hello World!",
         noHide: false,
@@ -69,7 +50,6 @@ export default {
   },
 
   computed: {
-    // 模仿原来的 style getter 来设置固定的窗口尺寸
     windowStyle(): StyleRecord {
         return {
           height: "400px",
@@ -83,42 +63,31 @@ export default {
       const target = event.target as HTMLInputElement | HTMLTextAreaElement;
       const value: string = target.value;
       
-      // 提取 key 并断言为我们接口的 key
       const key = target.getAttribute("name") as keyof WindowToSpawnData;
 
-      // 使用类型缩小 (Type Narrowing) 来确保赋值安全
       if (key === 'title' || key === 'content') {
-        // 'title' 和 'content' 预期为 string
         this.windowToSpawn[key] = value;
       } else if (key === 'width' || key === 'height') {
-        // 'width' 和 'height' 预期为 string | number。赋值 string 是安全的。
         this.windowToSpawn[key] = value;
       }
-      // 其他键（如 noHide）在这里不处理
     },
 
-    // 【修正后的 updateCheckbox】
     updateCheckbox(event: Event) {
       const target = event.target as HTMLInputElement;
       const value: boolean = target.checked;
       
-      // 提取 key
       const key = target.getAttribute("name");
       
-      // 使用类型缩小，只允许对布尔属性进行赋值
       if (key === 'noHide' || key === 'noFullscreen' || key === 'noClose') {
-          // 在此块中，key 已经被 TypeScript 缩小为仅是布尔类型属性之一
           this.windowToSpawn[key] = value;
       }
     },
 
-    // 模仿原来的 spawnWindow 逻辑和验证
     spawnWindow() {
       const width = Number(this.windowToSpawn.width);
       const height = Number(this.windowToSpawn.height);
-      const title = this.windowToSpawn.title || "Spawned Window"; // 默认标题
+      const title = this.windowToSpawn.title || "Spawned Window";
       
-      // 模仿原来的 AlertWindow.js 验证逻辑
       if (!width || width < 100 || width > 1000) {
         return alert("宽度应为100~1000的合法数字!");
       }
@@ -132,14 +101,13 @@ export default {
         height: height,
         content: this.windowToSpawn.content || "",
         icon: this.icon,
-        appId: "spawnedWindow", // AppInfos 中注册的 SpawnedWindow ID
+        appId: "spawnedWindow",
         canHide: !this.windowToSpawn.noHide,
         canFullscreen: !this.windowToSpawn.noFullscreen,
         canClose: !this.windowToSpawn.noClose,
       };
 
-      // 发送自定义事件给 App.vue，触发创建自定义窗口
-      this.$emit('spawnCustomWindow', payload);
+      this.$emit('spawnCustomWindow', "spawnedWindow", payload);
     }
   }
 };
@@ -151,25 +119,23 @@ export default {
     :index="index"
     :title="title"
     :icon="icon"
-    
-    :positionX="positionX"
-    :positionY="positionY"
-    :isFullscreen="isFullscreen"
+    :isHidden="isHidden"
+
+    :width="700"
+    :height="400"
     
     :canHide="true"
-    :canFullscreen="true"
+    :canFullscreen="false"
     :canClose="true"
 
     :style="windowStyle"
 
-    @hide="$emit('hide', $event)"
-    @focus="$emit('focus', $event)"
+    @hide="$emit('hide', windowId)"
+    @mousedown="$emit('mousedown', $event)"
     @close="$emit('close', $event)"
-    @update:position="$emit('update:position', $event[0], $event[1], $event[2])" 
-    @update:fullscreen="$emit('update:fullscreen', $event[0], $event[1])"
     @createWindow="$emit('createWindow')"
   >
-    <div class="window-content column">
+    <div class="column warpper">
       <div class="row x-center margin-bottom-2">
         <span class="y-center">生成的窗口名叫什么?</span>
       </div>
@@ -212,21 +178,12 @@ export default {
 </template>
 
 <style scoped>
-/* 模仿原始 JS 文件中的布局类 */
-.window-content.column {
-  margin: auto;
-  flex-direction: column;
-  align-items: center; 
-  padding: 10px;
-}
 .row {
   display: flex;
   width: 100%;
   justify-content: center; 
   align-items: center; 
 }
-.row.margin-bottom-2 { margin-bottom: 2px; }
-.row.margin-bottom-10 { margin-bottom: 10px; }
 
 .basic-input {
     flex-grow: 1;
@@ -245,10 +202,6 @@ export default {
     resize: none;
 }
 
-.center { margin: 10px auto; } 
-
-.margin-right-2 { margin-right: 2px; }
-.margin-right-10 { margin-right: 10px; }
 .checkbox-container {
     height: 16px;
     width: 16px;

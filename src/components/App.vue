@@ -6,8 +6,9 @@ import FooterNavigation from "./constructors/footerNavigation.vue";
 import StartNavigation from "./constructors/startNavigation.vue";
 import { AppInfos, type AppEntryInfo } from "./apps/appInfos";
 import InternetExplorer from "./apps/internetExplorer/internetExplorer.vue";
-import WindowSpawner, { type CustomWindowSpawnEvent } from "./apps/windowSpawner/windowSpawner.vue";
+import WindowSpawner from "./apps/windowSpawner/windowSpawner.vue";
 import SpawnedWindow, { type SpawnedWindowProps } from "./apps/windowSpawner/spawnedWindow.vue";
+import AlertWindow from "./apps/windowSpawner/alertWindow.vue";
 
 // 定义运行中的窗口实例类型
 interface WindowInstance {
@@ -18,10 +19,19 @@ interface WindowInstance {
   title: string;
   icon: string;
   componentName: string;
-  positionX: number;
-  positionY: number;
-  isFullscreen: boolean;
   customProps?: Partial<SpawnedWindowProps>;
+}
+
+export interface CustomWindowSpawnEvent {
+  title?: string;
+  width?: number;
+  height?: number;
+  content?: string;
+  icon?: string;
+  appId?: string;
+  canHide?: boolean;
+  canFullscreen?: boolean;
+  canClose?: boolean;
 }
 
 export default {
@@ -30,6 +40,7 @@ export default {
     StartNavigation,
     FooterNavigation,
     DesktopIcon,
+    AlertWindow,
     InternetExplorer,
     WindowSpawner,
     SpawnedWindow
@@ -38,7 +49,7 @@ export default {
     return {
       interval: undefined as Interval | undefined,
       currentTime: new Date(),
-      currentWindows: new Map<string, WindowInstance>(),
+      currentWindows: {} as Record<string, WindowInstance>,
       currentTabIndex: 0,
       isStartMenuOpen: false,
       AppInfos: AppInfos,
@@ -46,7 +57,6 @@ export default {
   },
 
   computed: {
-    // ... (processedTime 和 desktopIcons 保持不变) ...
     processedTime() {
       const Hours = this.currentTime.getHours();
       const Minutes = this.currentTime.getMinutes();
@@ -66,11 +76,6 @@ export default {
     desktopIcons(): AppEntryInfo[] {
       return Object.values(this.AppInfos).filter((info) => info.showOnDesktop);
     },
-    sortedWindows(): WindowInstance[] {
-      return Array.from(this.currentWindows.values()).sort(
-        (a, b) => a.index - b.index
-      );
-    },
   },
 
   methods: {
@@ -79,14 +84,14 @@ export default {
     },
 
     getWindow(windowId: string): WindowInstance | undefined {
-      return this.currentWindows.get(windowId);
+      return this.currentWindows[windowId];
     },
 
     handleWindowFocus(windowId: string) {
       const item = this.getWindow(windowId);
       if (item) {
-        item.index = this.currentTabIndex++; // 提升 Z-index (这是导致问题的根源，但现在状态已提升，不会丢失数据)
-        item.hidden = false; // 聚焦时取消隐藏 (最小化)
+        item.index = this.currentTabIndex++;
+        item.hidden = false;
       }
     },
 
@@ -95,53 +100,26 @@ export default {
       if (item) {
         item.hidden = !item.hidden;
         if (!item.hidden) {
-          item.index = this.currentTabIndex++; // 重新显示时提升 Z-index
+          item.index = this.currentTabIndex++;
         }
       }
     },
 
     closeWindow(windowId: string) {
-      this.currentWindows.delete(windowId);
+      delete this.currentWindows[windowId];
     },
 
-    // 【新增】更新窗口的位置
-    updateWindowPosition(windowId: string, x: number, y: number) {
-      const item = this.getWindow(windowId);
-      if (item) {
-        item.positionX = x;
-        item.positionY = y;
-      }
-    },
-
-    // 【新增】更新窗口的全屏状态
-    updateWindowFullscreen(windowId: string, isFullscreen: boolean) {
-      const item = this.getWindow(windowId);
-      if (item) {
-        item.isFullscreen = isFullscreen;
-        this.handleWindowFocus(windowId); // 全屏/恢复时也应聚焦
-      }
-    },// 【新增】处理自定义窗口生成事件
-    handleCustomSpawn(payload: CustomWindowSpawnEvent){
-      this.createWindow(payload.appId, payload);
+    handleCustomWindowSpawn(appId: string, payload: CustomWindowSpawnEvent){
+      this.createWindow(appId, payload);
     },
     
-    // 【修改】重载 createWindow 以支持可选的 customPayload
     createWindow(appId: string, customPayload?: CustomWindowSpawnEvent){
       const appInfo: AppEntryInfo | undefined = AppInfos[appId];
 
       if (!appInfo) return;
-      if (!appInfo.windowComponent) {
-        if (appId === "shutdown") {
-          console.log("Shutting down... (action not implemented)");
-        }
-        this.isStartMenuOpen = false;
-        return;
-      }
 
       if (appInfo.isSingleInstance) {
-        const existingWindow = Array.from(this.currentWindows.values()).find(
-          (w) => w.appId === appId
-        );
+        const existingWindow = this.currentWindows[appId]
         if (existingWindow) {
           this.handleWindowFocus(existingWindow.windowId);
           this.isStartMenuOpen = false;
@@ -151,26 +129,17 @@ export default {
 
       const newWindowId = `${appId}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const newIndex = this.currentTabIndex++;
-      
-      const offset = newIndex % 10;
-      const positionX = offset * 20 + 60 + (offset) * 2;
-      const positionY = offset * 20 + 100 + (offset) * 5;
 
       const newWindow: WindowInstance = {
         windowId: newWindowId,
         appId: appId,
         index: newIndex,
         hidden: false,
-        // 使用自定义 Payload 的 title 和 icon
         title: customPayload?.title || appInfo.title,
         icon: customPayload?.icon || appInfo.icon,
         componentName: appInfo.windowComponent,
-        positionX: positionX,
-        positionY: positionY,
-        isFullscreen: false,
       };
 
-      // 【新增】存储自定义 Props
       if (customPayload) {
           newWindow.customProps = {
               content: customPayload.content,
@@ -182,8 +151,12 @@ export default {
           }
       }
 
-      this.currentWindows.set(newWindowId, newWindow);
+      this.currentWindows[newWindowId] = newWindow;
       this.isStartMenuOpen = false;
+    },
+
+    alert(content: string){
+      this.createWindow("alert", {content: content})
     },
 
     toggleStartMenu() {
@@ -194,13 +167,15 @@ export default {
   mounted() {
     this.interval = new Interval(this.update, 0);
     this.interval.set();
-    Interval.startMainInterval(60);
+    Interval.startMainInterval(120);
+
+    window.alert = (content: string) => {this.alert(content)}
   },
 };
 </script>
 
 <template>
-  <div>
+  <div class="app">
     <div class="main-content">
       <div id="icons">
         <DesktopIcon
@@ -213,24 +188,19 @@ export default {
       </div>
       <div id="windows">
         <component
-          v-for="item in sortedWindows.filter(w => !w.hidden)"
+          v-for="item in currentWindows"
           :key="item.windowId"
           :is="item.componentName"
           :index="item.index"
           :title="item.title"
           :icon="item.icon"
           :windowId="item.windowId"
-          
-          :positionX="item.positionX"
-          :positionY="item.positionY"
-          :isFullscreen="item.isFullscreen"
+          :isHidden="item.hidden"
           
           v-bind="item.customProps" 
           
-          @spawnCustomWindow="handleCustomSpawn" 
+          @spawnCustomWindow="handleCustomWindowSpawn" 
           
-          @update:position="updateWindowPosition"
-          @update:fullscreen="updateWindowFullscreen"
           @hide="toggleWindowHide"
           @focus="handleWindowFocus"
           @close="closeWindow"
@@ -258,7 +228,7 @@ export default {
         </div>
         <div id="footer-navigation">
           <FooterNavigation
-            v-for="item in sortedWindows"
+            v-for="item in currentWindows"
             :key="item.windowId"
             :title="item.title"
             :icon="item.icon"
@@ -277,7 +247,11 @@ export default {
 </template>
 
 <style scoped>
-/* 样式保持不变 */
+.app{
+  height: 100vh;
+  width: 100vw;
+}
+
 .main-content {
   display: flex;
   position: relative;

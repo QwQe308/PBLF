@@ -22,6 +22,18 @@ export interface AppEntryInfo {
 type AppInfos = Record<string, AppEntryInfo>;
 
 export const AppInfos: AppInfos = {
+  // Alert Window
+  alert: {
+    appId: "alert",
+    title: "ERROR",
+    icon: "/resources/window-icons/error.ico",
+    windowComponent: "AlertWindow",
+    showInStartMenu: false,
+    showOnDesktop: false,
+    isSingleInstance: false,
+  },
+
+  // Internet Explorer
   internetExplorer: {
     appId: "internetExplorer",
     title: "Internet Explorer",
@@ -31,10 +43,12 @@ export const AppInfos: AppInfos = {
     showOnDesktop: true,
     isSingleInstance: false,
   },
+
+  // Window Spawner
   windowSpawner: {
     appId: "windowSpawner",
     title: "Window Spawner",
-    icon: "/resources/desktop-icons/window-spawner.ico", // 模仿原文件路径
+    icon: "/resources/desktop-icons/window-spawner.ico",
     windowComponent: "WindowSpawner",
     showInStartMenu: true,
     showOnDesktop: true,
@@ -42,8 +56,8 @@ export const AppInfos: AppInfos = {
   },
   spawnedWindow: {
     appId: "spawnedWindow",
-    title: "Spawned Window", // 默认标题，会被动态覆盖
-    icon: "/resources/desktop-icons/window-spawner.ico", // 默认图标，会被动态覆盖
+    title: "Spawned Window",
+    icon: "/resources/desktop-icons/window-spawner.ico",
     windowComponent: "SpawnedWindow",
     showInStartMenu: false,
     showOnDesktop: false,

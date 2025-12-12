@@ -10,30 +10,39 @@ export default {
     index: { type: Number, required: true },
     title: { type: String, required: true },
     icon: { type: String, required: true },
+    isHidden: { type: Boolean, required: true },
+
+    width: {type: Number, required: true},
+    height: {type: Number, required: true},
+
     canHide: { type: Boolean, required: false, default: true },
     canFullscreen: { type: Boolean, required: false, default: true },
     canClose: { type: Boolean, required: false, default: true },
-
-    positionX: { type: Number, required: true },
-    positionY: { type: Number, required: true },
-    isFullscreen: { type: Boolean, required: true },
   },
   data() {
+    const offset = this.index % 10;
+    const positionX = offset * 20 + 60 + offset * 2;
+    const positionY = offset * 20 + 100 + offset * 5;
+
     return {
       dragging: false,
       recordedMousePosition: new Vector(0, 0),
+
+      position: new Vector(positionX, positionY),
+      isFullscreen: false,
     };
   },
 
-  // 【新增】定义发出的自定义状态更新事件
-  emits: ["hide", "focus", "close", "update:position", "update:fullscreen"],
+  emits: ["hide", "focus", "close"],
 
   computed: {
     style(): StyleRecord {
       if (this.isFullscreen) return {};
 
       return {
-        transform: `translate(${this.positionX}px, ${this.positionY}px)`,
+        width: this.isFullscreen ? "" : `${this.width}px`,
+        height: this.isFullscreen ? "" : `${this.height}px`,
+        transform: `translate(${this.position.x}px, ${this.position.y}px)`,
         zIndex: (this.index + 100).toString(),
       };
     },
@@ -41,6 +50,7 @@ export default {
     class(): ClassRecord {
       return {
         fullscreen: this.isFullscreen,
+        hidden: this.isHidden,
       };
     },
   },
@@ -52,7 +62,6 @@ export default {
 
     startDrag(event: MouseEvent) {
       this.focus();
-      // 【修改】使用 isFullscreen prop
       if (this.isFullscreen) return;
 
       this.dragging = true;
@@ -69,10 +78,7 @@ export default {
       const NewMousePosition = new Vector(event.clientX, event.clientY);
       const DeltaPosition = NewMousePosition.sub(this.recordedMousePosition);
 
-      const newX = this.positionX + DeltaPosition.x;
-      const newY = this.positionY + DeltaPosition.y;
-
-      this.$emit("update:position", this.windowId, newX, newY);
+      this.position = this.position.add(DeltaPosition);
 
       this.recordedMousePosition = NewMousePosition;
     },
@@ -90,7 +96,7 @@ export default {
     },
 
     toggleFullscreen() {
-      this.$emit("update:fullscreen", this.windowId, !this.isFullscreen);
+      this.isFullscreen = !this.isFullscreen;
     },
 
     close() {
@@ -101,7 +107,7 @@ export default {
 </script>
 
 <template>
-  <div class="window" tabindex="0" :style="style" :class="class" @click="focus">
+  <div class="window" tabindex="0" :style="style" :class="class" @mousedown="focus">
     <div class="window-warpper">
       <div class="window-header" @mousedown="startDrag">
         <div class="left">
@@ -181,12 +187,16 @@ export default {
   will-change: transform;
 }
 
+.window.hidden {
+  visibility: hidden;
+}
+
 .window.fullscreen {
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: -2px;
-  transform: none;
+  height: 100% !important;
+  width: 100% !important;
+  top: 0 !important;
+  left: -2px !important;
+  transform: none !important;
   z-index: 999999 !important;
 }
 
