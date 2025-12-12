@@ -235,9 +235,6 @@ export default {
   flex-grow: 0;
 }
 
-.flappy-bird-player {
-}
-
 .flappy-bird-score {
   position: absolute;
   left: 50%;
