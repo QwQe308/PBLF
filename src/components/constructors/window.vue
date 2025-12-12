@@ -16,9 +16,9 @@ export default {
     width: {type: Number, required: true},
     height: {type: Number, required: true},
 
-    canHide: { type: Boolean, required: false, default: true },
-    canFullscreen: { type: Boolean, required: false, default: true },
-    canClose: { type: Boolean, required: false, default: true },
+    canHide: { type: Boolean, required: false, default: false },
+    canFullscreen: { type: Boolean, required: false, default: false },
+    canClose: { type: Boolean, required: false, default: false },
   },
   data() {
     const offset = this.index % 10;

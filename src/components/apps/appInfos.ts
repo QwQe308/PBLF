@@ -1,6 +1,5 @@
 /**
  * @interface AppEntryInfo Info for a sigle app / window.
- *
  */
 export interface AppEntryInfo {
   // Title of the app
@@ -23,8 +22,8 @@ type AppInfos = Record<string, AppEntryInfo>;
 
 export const AppInfos: AppInfos = {
   // Alert Window
-  alert: {
-    appId: "alert",
+  Alert: {
+    appId: "Alert",
     title: "ERROR",
     icon: "/resources/window-icons/error.ico",
     windowComponent: "AlertWindow",
@@ -79,7 +78,7 @@ export const AppInfos: AppInfos = {
     appId: "FlappyBird",
     title: "Flappy Bird",
     icon: "/resources/apps/flappy-bird/0.png",
-    windowComponent: "FlappyBirdWindow",
+    windowComponent: "FlappyBird",
     showInStartMenu: true,
     showOnDesktop: true,
     isSingleInstance: false,

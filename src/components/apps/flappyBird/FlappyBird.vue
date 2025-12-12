@@ -6,16 +6,17 @@ import {
   type PlayerState,
 } from "./flappyBirdGame.ts";
 import SwapImages from "../../constructors/swapImages.vue";
+import type { StyleRecord } from "../../../support/types.ts";
 
 const PlayerImages = [
-  './resources/apps/flappy-bird/0.png',
-  './resources/apps/flappy-bird/1.png',
-  './resources/apps/flappy-bird/2.png',
-  './resources/apps/flappy-bird/3.png',
-  './resources/apps/flappy-bird/4.png',
-  './resources/apps/flappy-bird/5.png',
-  './resources/apps/flappy-bird/6.png',
-  './resources/apps/flappy-bird/7.png',
+  "./resources/apps/flappy-bird/0.png",
+  "./resources/apps/flappy-bird/1.png",
+  "./resources/apps/flappy-bird/2.png",
+  "./resources/apps/flappy-bird/3.png",
+  "./resources/apps/flappy-bird/4.png",
+  "./resources/apps/flappy-bird/5.png",
+  "./resources/apps/flappy-bird/6.png",
+  "./resources/apps/flappy-bird/7.png",
 ];
 
 const createInitialPlayerState = (): PlayerState => ({
@@ -33,7 +34,7 @@ export default {
 
   components: {
     Window,
-    SwapImages
+    SwapImages,
   },
 
   props: {
@@ -71,9 +72,17 @@ export default {
       };
     },
 
+    playerStyle(): StyleRecord{
+      return {
+        transform: this.playerTransform
+      }
+    },
+
     playerTransform(): string {
       const position = this.gameState.player.position;
-      if (!position || !position.leftTopCorner) return "";
+      if (!position || !position.leftTopCorner) {
+        return "";
+      }
 
       return `translate(${position.leftTopCorner.x}px, ${position.leftTopCorner.y}px)`;
     },
@@ -109,8 +118,7 @@ export default {
   },
 
   methods: {
-    handleGameoverCallback() {
-    },
+    handleGameoverCallback() {},
 
     handleStateUpdateCallback(state: GameState) {
       this.gameState = {
@@ -149,15 +157,14 @@ export default {
     :isHidden="isHidden"
     :width="1200"
     :height="800"
-    :canHide="true"
-    :canFullscreen="false"
-    :canClose="true"
+    canHide
+    canClose
     @hide="$emit('hide', windowId)"
     @focus="$emit('focus', windowId)"
     @close="handleClose"
   >
     <div
-      class="flappy-bird-bg column"
+      class="warpper flappy-bird-bg column"
       @click="handleClick"
       draggable="false"
       :style="bgStyle"
@@ -165,16 +172,21 @@ export default {
       <div class="flappy-bird-score">{{ scoreText }}</div>
 
       <div class="flappy-bird-fly-area">
-        <template v-for="obstacle in gameState.obstacles" :key="obstacle.id">
-          <img
-            class="flappy-bird-obstacle"
-            src="/resources/apps/flappy-bird/pipe.png"
-            :style="{ transform: obstacle.transform }"
-            draggable="false"
-          />
-        </template>
+        <img
+          v-for="obstacle in gameState.obstacles"
+          :key="obstacle.id"
+          class="flappy-bird-obstacle"
+          src="/resources/apps/flappy-bird/pipe.png"
+          :style="{ transform: obstacle.transform }"
+          draggable="false"
+        />
 
-        <SwapImages :interval="0.5" :images="playerImages" :playing="!gameState.isGameover"></SwapImages>
+        <SwapImages
+          :interval="0.5"
+          :images="playerImages"
+          :playing="!gameState.isGameover"
+          :style="playerStyle"
+        ></SwapImages>
       </div>
 
       <div class="flappy-bird-ground"></div>
@@ -206,99 +218,94 @@ export default {
 </template>
 
 <style scoped>
-/* 保持原 Flappy Bird 的样式类和逻辑 */
 .flappy-bird-bg {
-  /* 定义 CSS 变量用于滚动动画 */
-  --bg-offset: 0px;
-  --ground-offset: 0px;
-
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  background-image: url("/resources/apps/flappy-bird/bg.png");
-  background-position: var(--bg-offset) 0;
+  background-image: url("./resources/apps/flappy-bird/bg.png");
+  background-size: contain;
   background-repeat: repeat-x;
-  background-size: auto 100%;
-}
 
-.flappy-bird-fly-area {
-  flex-grow: 1;
-  position: relative;
   overflow: hidden;
+  position: relative;
+
+  background-position-x: var(--bg-offset);
 }
 
-.flappy-bird-ground {
-  height: 100px;
-  min-height: 100px;
-  background-image: url("/resources/apps/flappy-bird/ground.png");
-  background-position: var(--ground-offset) 0;
-  background-repeat: repeat-x;
-  background-size: auto 100px;
+.obstacle img {
+  position: absolute;
+  flex-grow: 0;
 }
 
 .flappy-bird-player {
   position: absolute;
-  width: 45px;
-  height: 45px;
-  will-change: transform;
-}
-
-.flappy-bird-obstacle {
-  position: absolute;
-  width: 78px;
-  height: 1000%;
-  top: 50%;
-  left: 0;
-  will-change: transform;
+  left: -11px;
+  top: -12px;
+  flex-grow: 0;
 }
 
 .flappy-bird-score {
   position: absolute;
-  top: 20px;
+  left: 50%;
+  top: 30px;
+  transform: translateX(-50%) scaleY(1.1);
+  font-family: var(--font-Press-Start-2P);
+  font-size: 24px;
+  color: #895628;
+}
+
+.flappy-bird-fly-area {
+  position: relative;
+  height: 77.4%;
   width: 100%;
-  text-align: center;
-  font-size: 40px;
-  color: #fff;
-  text-shadow: 2px 2px #000;
-  z-index: 10;
-  pointer-events: none;
+  overflow: hidden;
+}
+
+.flappy-bird-ground {
+  position: relative;
+  height: 22.6%;
+  width: 100%;
+  background-image: url("./resources/apps/flappy-bird/ground.png");
+  background-position-x: var(--ground-offset);
+  background-repeat: repeat-x;
+}
+
+.flappy-bird-obstacle {
+  position: absolute;
 }
 
 .flappy-bird-hint-filter {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 50;
-  pointer-events: none;
-}
-
-.flappy-bird-hint-filter.inactive {
-  display: none;
+  width: 100%;
+  background-color: #0003;
+  transition: opacity 0.6s;
+  z-index: 9;
 }
 
 .flappy-bird-hint {
-  margin: 10px 0;
+  position: absolute;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.flappy-bird-hint-filter.inactive {
+  opacity: 0;
 }
 
 .flappy-bird-hint.inactive {
-  display: none;
+  opacity: 0;
 }
 
 .flappy-bird-hint-score {
-  font-size: 24px;
-  color: #fff;
-  text-shadow: 1px 1px #000;
+  position: absolute;
+  left: 49.2%;
+  top: 47%;
+  transform: translateX(-50%) translateY(-50%) scaleY(1.1);
+  font-family: var(--font-Press-Start-2P);
+  font-size: 28px;
+  color: #ffa24a;
+}
+
+.flappy-bird-hint.inactive + .flappy-bird-hint-score {
+  opacity: 0;
 }
 </style>

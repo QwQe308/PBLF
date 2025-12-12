@@ -34,14 +34,11 @@ export default {
     :width="500"
     :height="200"
 
-    :canHide="false"
-    :canFullscreen="false"
-    :canClose="true"
+    canClose
 
     @hide="$emit('hide', $event)"
     @focus="$emit('focus', $event)"
     @close="$emit('close', $event)"
-    @createWindow="$emit('createWindow')"
   >
     <div class="row">
       <img class="alert-error-img" src="/resources/window-icons/error.ico" />
@@ -56,4 +53,11 @@ export default {
   </Window>
 </template>
 
-<style scoped></style>
+<style scoped>
+.alert-error-img{
+  display: block;
+  width: 32px;
+  height: 32px;
+  margin-right: 16px;
+}
+</style>

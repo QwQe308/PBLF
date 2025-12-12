@@ -3,7 +3,6 @@ import { Rectangle } from "../../../support/rectangle.ts";
 
 const ObstacleWidth = 78;
 const ObstacleGap = 144;
-const FlyAreaHeight = 588.23;
 
 export type ObstacleEvent = "Score" | "Gameover" | "Remove" | null;
 
@@ -37,7 +36,7 @@ export class Obstacle {
       // Lower pipe
       Rectangle.fromRange(
         new NumberRange(this.xPosition, this.xPosition + ObstacleWidth),
-        new NumberRange(this.yPosition + ObstacleGap / 2, FlyAreaHeight + 10)
+        new NumberRange(this.yPosition + ObstacleGap / 2, 10000)
       ),
     ];
   }

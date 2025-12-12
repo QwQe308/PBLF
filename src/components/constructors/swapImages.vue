@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import { Interval } from "../../support/interval";
+import type { StyleRecord } from "../../support/types";
 
 export default {
   name: "SwapImages",
@@ -17,7 +18,12 @@ export default {
       type: Boolean,
       required: false,
       default: true
-    }
+    },
+    style: {
+      type: Object as PropType<StyleRecord>,
+      required: false,
+      default: {}
+    },
   },
 
   data() {
@@ -35,12 +41,15 @@ export default {
     },
 
     getStyle(index: number) {
-      return {
+      let baseStyle = {
         opacity: index === this.currentImageIndex ? 1 : 0,
-      };
+      }
+      Object.assign(baseStyle, this.style)
+      if(this.style.opacity) baseStyle.opacity = (index === this.currentImageIndex ? this.style.opacity : 0) as number;
+      return baseStyle;
     },
   },
-  
+
   mounted() {
     this.intervalUpdater = new Interval(this.update.bind(this), this.interval);
     this.imagesLength = this.images.length;

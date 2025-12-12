@@ -28,7 +28,7 @@ export default {
     },
 
     openFlappyBird() {
-      this.$emit("createWindow", "FlappyBirdWindow");
+      this.$emit("createWindow", "FlappyBird");
     },
   },
 };
@@ -46,9 +46,7 @@ export default {
     :width="700"
     :height="400"
     
-    :canHide="false"
-    :canFullscreen="false"
-    :canClose="true"
+    canClose
     
     @hide="$emit('hide', windowId)"
     @focus="$emit('focus', windowId)"

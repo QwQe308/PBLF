@@ -10,7 +10,7 @@ import WindowSpawner from "./apps/windowSpawner/windowSpawner.vue";
 import SpawnedWindow, { type SpawnedWindowProps } from "./apps/windowSpawner/spawnedWindow.vue";
 import AlertWindow from "./apps/windowSpawner/alertWindow.vue";
 import Welcome from "./apps/welcome/welcome.vue";
-import FlappyBirdWindow from "./apps/flappyBird/flappyBirdWindow.vue";
+import FlappyBird from "./apps/flappyBird/FlappyBird.vue";
 
 // 定义运行中的窗口实例类型
 interface WindowInstance {
@@ -47,7 +47,7 @@ export default {
     InternetExplorer,
     WindowSpawner,
     SpawnedWindow,
-    FlappyBirdWindow
+    FlappyBird,
   },
   data() {
     return {
@@ -123,7 +123,7 @@ export default {
 
       if (!appInfo) {
         this.alert("捕获到了一个错误信息! 请检查控制台!")
-        return console.error("A window with no appInfo is created!")
+        return console.error(`A window with no appInfo is created! Creating appId: ${appId}`)
       };
 
       if (appInfo.isSingleInstance) {
@@ -149,14 +149,7 @@ export default {
       };
 
       if (customPayload) {
-          newWindow.customProps = {
-              content: customPayload.content,
-              dynamicWidth: customPayload.width,
-              dynamicHeight: customPayload.height,
-              canHide: customPayload.canHide,
-              canFullscreen: customPayload.canFullscreen,
-              canClose: customPayload.canClose,
-          }
+          newWindow.customProps = customPayload
       }
 
       this.currentWindows[newWindowId] = newWindow;
@@ -164,7 +157,7 @@ export default {
     },
 
     alert(content: string){
-      this.createWindow("alert", {content: content})
+      this.createWindow("Alert", {content: content})
     },
 
     toggleStartMenu() {

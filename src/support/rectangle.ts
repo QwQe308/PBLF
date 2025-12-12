@@ -16,7 +16,6 @@ export class Rectangle {
   }
 
   static fromRange(xRange: NumberRange, yRange: NumberRange): Rectangle {
-    // 假设 Vector 构造函数可以接收 [number, number]
     return new Rectangle(
       new Vector(xRange.start, yRange.start),
       new Vector(xRange.end, yRange.end)

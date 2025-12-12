@@ -125,9 +125,8 @@ export default {
     :width="700"
     :height="400"
     
-    :canHide="true"
-    :canFullscreen="false"
-    :canClose="true"
+    canHide
+    canClose
 
     :style="windowStyle"
 

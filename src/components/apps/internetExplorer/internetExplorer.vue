@@ -43,9 +43,9 @@ export default {
     :width="1200"
     :height="800"
     
-    :canHide="true"
-    :canFullscreen="true"
-    :canClose="true"
+    canHide
+    canFullscreen
+    canClose
     
     @hide="$emit('hide', windowId)"
     @focus="$emit('focus', windowId)"
