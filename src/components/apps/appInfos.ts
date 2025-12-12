@@ -74,4 +74,14 @@ export const AppInfos: AppInfos = {
     showOnDesktop: false,
     isSingleInstance: false,
   },
+
+  FlappyBird: {
+    appId: "FlappyBird",
+    title: "Flappy Bird",
+    icon: "/resources/apps/flappy-bird/0.png",
+    windowComponent: "FlappyBirdWindow",
+    showInStartMenu: true,
+    showOnDesktop: true,
+    isSingleInstance: false,
+  },
 };

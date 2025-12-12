@@ -23,9 +23,8 @@ export class Rectangle {
     );
   }
 
-  static fromSize(leftTopCorner: Vector, sizeVector: Vector): Rectangle {
-    leftTopCorner = Vector.copy(leftTopCorner);
-    return new Rectangle(leftTopCorner, leftTopCorner.add(sizeVector));
+  static fromSize(leftTopCorner: Vector, width: number, height: number): Rectangle {
+    return new Rectangle(leftTopCorner, leftTopCorner.add(new Vector(width, height)));
   }
 
   static copy(rect: Rectangle): Rectangle {

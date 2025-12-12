@@ -10,6 +10,7 @@ import WindowSpawner from "./apps/windowSpawner/windowSpawner.vue";
 import SpawnedWindow, { type SpawnedWindowProps } from "./apps/windowSpawner/spawnedWindow.vue";
 import AlertWindow from "./apps/windowSpawner/alertWindow.vue";
 import Welcome from "./apps/welcome/welcome.vue";
+import FlappyBirdWindow from "./apps/flappyBird/flappyBirdWindow.vue";
 
 // 定义运行中的窗口实例类型
 interface WindowInstance {
@@ -45,7 +46,8 @@ export default {
     Welcome,
     InternetExplorer,
     WindowSpawner,
-    SpawnedWindow
+    SpawnedWindow,
+    FlappyBirdWindow
   },
   data() {
     return {
@@ -119,7 +121,10 @@ export default {
     createWindow(appId: string, customPayload?: CustomWindowSpawnEvent){
       const appInfo: AppEntryInfo | undefined = AppInfos[appId];
 
-      if (!appInfo) return;
+      if (!appInfo) {
+        this.alert("捕获到了一个错误信息! 请检查控制台!")
+        return console.error("A window with no appInfo is created!")
+      };
 
       if (appInfo.isSingleInstance) {
         const existingWindow = this.currentWindows[appId]
