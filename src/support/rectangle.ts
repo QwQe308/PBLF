@@ -26,8 +26,8 @@ export class Rectangle {
     return new Rectangle(leftTopCorner, leftTopCorner.add(new Vector(width, height)));
   }
 
-  static copy(rect: Rectangle): Rectangle {
-    return new Rectangle(rect.corner1, rect.corner2);
+  get copy(): Rectangle {
+    return new Rectangle(this.corner1, this.corner2);
   }
 
   get center(): Vector {
@@ -47,11 +47,11 @@ export class Rectangle {
   }
 
   get leftTopCorner(): Vector {
-    return new Vector(this.corner1.x, this.corner2.x);
+    return new Vector(this.corner1.x, this.corner1.y);
   }
 
   get rightTopCorner(): Vector {
-    return new Vector(this.corner1.y, this.corner2.x);
+    return new Vector(this.corner2.x, this.corner1.y);
   }
 
   get leftBottomCorner(): Vector {
@@ -59,7 +59,7 @@ export class Rectangle {
   }
 
   get rightBottomCorner(): Vector {
-    return new Vector(this.corner1.y, this.corner2.y);
+    return new Vector(this.corner2.x, this.corner2.y);
   }
 
   inRange(vector: Vector): boolean {

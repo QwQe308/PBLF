@@ -51,8 +51,10 @@ export default {
   },
 
   mounted() {
-    this.intervalUpdater = new Interval(this.update.bind(this), this.interval);
     this.imagesLength = this.images.length;
+
+    this.intervalUpdater = new Interval(this.update.bind(this), this.interval);
+    this.intervalUpdater.set()
   },
 };
 </script>

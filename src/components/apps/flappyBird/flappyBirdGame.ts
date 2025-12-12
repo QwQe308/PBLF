@@ -52,7 +52,7 @@ export class FlappyBirdGame {
       obstacles: new Set(),
       gameoverCounter: 0,
     };
-    this.interval = new Interval(this.gameInterval.bind(this));
+    this.interval = new Interval(this.gameInterval.bind(this), 0);
   }
 
   get Yacceleration(): number {
@@ -65,6 +65,7 @@ export class FlappyBirdGame {
 
   start() {
     Object.assign(this.state.player, this.defaultPlayerData);
+    this.state.player.speed = new Vector(300, 0)
     this.state.obstacles.clear();
 
     if (!this.state.isGameover) this.interval.set();

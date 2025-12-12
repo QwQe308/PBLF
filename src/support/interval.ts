@@ -23,6 +23,7 @@ export class Interval {
   }
 
   set() {
+    this.time = 0
     intervals.add(this);
   }
 

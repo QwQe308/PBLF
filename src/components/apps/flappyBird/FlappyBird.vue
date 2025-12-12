@@ -72,26 +72,27 @@ export default {
       };
     },
 
-    playerStyle(): StyleRecord{
-      return {
-        transform: this.playerTransform
-      }
-    },
-
-    playerTransform(): string {
+    playerStyle(): StyleRecord {
       const position = this.gameState.player.position;
+
       if (!position || !position.leftTopCorner) {
-        return "";
+        return {};
       }
 
-      return `translate(${position.leftTopCorner.x}px, ${position.leftTopCorner.y}px)`;
+      return {
+        transform: `translate(${position.leftTopCorner.x}px, ${position.leftTopCorner.y}px)`,
+        position: "absolute",
+        left: "-11px",
+        top: "-12px",
+        "flex-grow": 0
+      };
     },
 
     isHintActive(): boolean {
-      return !this.gameState.running && this.gameState.gameoverCounter <= 0;
+      return !this.gameState.running && !this.gameState.isGameover;
     },
     isGameoverActive(): boolean {
-      return this.gameState.isGameover && this.gameState.gameoverCounter > 0;
+      return this.gameState.isGameover;
     },
     scoreText(): number {
       return this.gameState.player.score;
@@ -161,7 +162,7 @@ export default {
     canClose
     @hide="$emit('hide', windowId)"
     @focus="$emit('focus', windowId)"
-    @close="handleClose"
+    @close="$emit('close', windowId)"
   >
     <div
       class="warpper flappy-bird-bg column"
@@ -235,10 +236,6 @@ export default {
 }
 
 .flappy-bird-player {
-  position: absolute;
-  left: -11px;
-  top: -12px;
-  flex-grow: 0;
 }
 
 .flappy-bird-score {
