@@ -11,7 +11,9 @@ import SpawnedWindow, { type SpawnedWindowProps } from "./apps/windowSpawner/spa
 import AlertWindow from "./apps/windowSpawner/alertWindow.vue";
 import Welcome from "./apps/welcome/welcome.vue";
 import FlappyBird from "./apps/flappyBird/flappyBird.vue";
-import Gomoku from "./apps/gomoku/gomoku.vue";
+import GomokuLogin from "./apps/gomoku/login.vue";
+import GomokuHub from "./apps/gomoku/hub.vue";
+import GomokuGame from "./apps/gomoku/game.vue";
 
 // 定义运行中的窗口实例类型
 interface WindowInstance {
@@ -49,7 +51,9 @@ export default {
     WindowSpawner,
     SpawnedWindow,
     FlappyBird,
-    Gomoku,
+    GomokuLogin,
+    GomokuHub,
+    GomokuGame
   },
   data() {
     return {

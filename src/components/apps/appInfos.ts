@@ -86,13 +86,33 @@ export const AppInfos: AppInfos = {
   },
 
   // Gomoku
-  Gomoku: {
-    appId: "Gomoku",
-    title: "Gomoku", // Chinese title
-    icon: "/resources/desktop-icons/w95_5.ico", // Placeholder icon
-    windowComponent: "Gomoku",
+  GomokuLogin: {
+    appId: "GomokuLogin",
+    title: "Gomoku",
+    icon: "/resources/desktop-icons/gomoku.png", // Placeholder icon
+    windowComponent: "GomokuLogin",
     showInStartMenu: true,
     showOnDesktop: true,
+    isSingleInstance: false,
+  },
+
+  GomokuHub: {
+    appId: "GomokuHub",
+    title: "Gomoku - Hub",
+    icon: "/resources/desktop-icons/gomoku.png",
+    windowComponent: "GomokuHub",
+    showInStartMenu: false,
+    showOnDesktop: false,
+    isSingleInstance: false,
+  },
+
+  GomokuGame: {
+    appId: "GomokuGame",
+    title: "Gomoku - Game",
+    icon: "/resources/desktop-icons/gomoku.png",
+    windowComponent: "GomokuGame",
+    showInStartMenu: false,
+    showOnDesktop: false,
     isSingleInstance: false,
   },
 };

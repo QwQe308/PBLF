@@ -2,7 +2,7 @@
 import Window from "../../constructors/window.vue";
 
 export default {
-  name: "Gomoku",
+  name: "GomokuLogin",
 
   components: {
     Window,
@@ -17,7 +17,7 @@ export default {
     isHidden: { type: Boolean, required: true },
   },
 
-  emits: ["hide", "focus", "close"],
+  emits: ["hide", "focus", "close", "createWindow"],
 
   data() {
     return {
@@ -29,21 +29,19 @@ export default {
   },
 
   methods: {
-    handleClose() {
-      this.$emit("close", this.windowId);
-    },
-
     // login
-    handleLogin() {
-      if (this.username && this.password) {
+    async handleLogin() {
+      if (this.username && this.password) {  // to be changed
+        this.$emit("createWindow", "GomokuHub");
+        this.$emit("close", this.windowId);
       } else {
         this.message = "请输入用户名和密码。";
       }
     },
 
     // register
-    handleRegister() {
-      if (this.username && this.password) {
+    async handleRegister() {
+      if (this.username && this.password) {  // to be changed
         this.message = `用户 ${this.username} 注册成功! 请登录。`;
         this.password = "";
       } else {
@@ -68,7 +66,7 @@ export default {
     canClose
     @hide="$emit('hide', windowId)"
     @focus="$emit('focus', windowId)"
-    @close="handleClose"
+    @close="$emit('close', windowId)"
   >
     <div class="gomoku-warpper column">
       <div

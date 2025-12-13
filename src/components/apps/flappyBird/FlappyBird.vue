@@ -9,14 +9,14 @@ import SwapImages from "../../constructors/swapImages.vue";
 import type { StyleRecord } from "../../../support/types.ts";
 
 const PlayerImages = [
-  "./resources/apps/flappy-bird/0.png",
-  "./resources/apps/flappy-bird/1.png",
-  "./resources/apps/flappy-bird/2.png",
-  "./resources/apps/flappy-bird/3.png",
-  "./resources/apps/flappy-bird/4.png",
-  "./resources/apps/flappy-bird/5.png",
-  "./resources/apps/flappy-bird/6.png",
-  "./resources/apps/flappy-bird/7.png",
+  "/resources/apps/flappy-bird/0.png",
+  "/resources/apps/flappy-bird/1.png",
+  "/resources/apps/flappy-bird/2.png",
+  "/resources/apps/flappy-bird/3.png",
+  "/resources/apps/flappy-bird/4.png",
+  "/resources/apps/flappy-bird/5.png",
+  "/resources/apps/flappy-bird/6.png",
+  "/resources/apps/flappy-bird/7.png",
 ];
 
 const createInitialPlayerState = (): PlayerState => ({
@@ -185,7 +185,7 @@ export default {
         <SwapImages
           :interval="0.5"
           :images="playerImages"
-          :playing="!gameState.isGameover"
+          :playing="gameState.running"
           :style="playerStyle"
         ></SwapImages>
       </div>
