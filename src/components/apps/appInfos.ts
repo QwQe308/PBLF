@@ -74,11 +74,23 @@ export const AppInfos: AppInfos = {
     isSingleInstance: false,
   },
 
+  // Flappy Bird
   FlappyBird: {
     appId: "FlappyBird",
     title: "Flappy Bird",
     icon: "/resources/apps/flappy-bird/0.png",
     windowComponent: "FlappyBird",
+    showInStartMenu: true,
+    showOnDesktop: true,
+    isSingleInstance: false,
+  },
+
+  // Gomoku
+  Gomoku: {
+    appId: "Gomoku",
+    title: "Gomoku", // Chinese title
+    icon: "/resources/desktop-icons/w95_5.ico", // Placeholder icon
+    windowComponent: "Gomoku",
     showInStartMenu: true,
     showOnDesktop: true,
     isSingleInstance: false,
