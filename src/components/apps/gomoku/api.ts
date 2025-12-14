@@ -18,7 +18,17 @@ export interface GameState {
 
 async function request(endpoint: string, options?: RequestInit): Promise<any> {
   options.credentials = "include";
-  const response = await fetch(`${BASE_URL}${endpoint}`, options);
+  let params = ""
+  if(options.body){
+    let body = JSON.parse(options.body as any)
+    for(let i in body){
+      if(params === "") params = `?${i}=${body[i]}`
+      else params += `&${i}=${body[i]}`
+    }
+
+    delete options.body
+  }
+  const response = await fetch(`${BASE_URL}${endpoint}${params}`, options);
   return response.json();
 }
 
@@ -36,7 +46,7 @@ export const GomokuApi = {
     if (username.length > 50 || password.length > 100) {
       return "tooLong";
     }
-
+    
     try {
       let response = await request("/login", {
         method: "POST",
@@ -50,7 +60,7 @@ export const GomokuApi = {
         }
       } else {
         if (response.success) {
-          Cookies.set("token", response.data);
+          Cookies.set("token", response.data, {secure: false});
           return "success";
         } else {
           return "failed";
