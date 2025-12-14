@@ -25,7 +25,7 @@ export const AppInfos: AppInfos = {
   Alert: {
     appId: "Alert",
     title: "ERROR",
-    icon: "/resources/window-icons/error.ico",
+    icon: "./resources/window-icons/error.ico",
     windowComponent: "AlertWindow",
     showInStartMenu: false,
     showOnDesktop: false,
@@ -36,7 +36,7 @@ export const AppInfos: AppInfos = {
   Welcome: {
     appId: "Welcome",
     title: "Welcome",
-    icon: "/resources/window-icons/welcome.ico",
+    icon: "./resources/window-icons/welcome.ico",
     windowComponent: "Welcome",
     showInStartMenu: true,
     showOnDesktop: false,
@@ -47,7 +47,7 @@ export const AppInfos: AppInfos = {
   InternetExplorer: {
     appId: "InternetExplorer",
     title: "Internet Explorer",
-    icon: "/resources/desktop-icons/internet-explorer.ico",
+    icon: "./resources/desktop-icons/internet-explorer.ico",
     windowComponent: "InternetExplorer", // Name of the component
     showInStartMenu: true,
     showOnDesktop: true,
@@ -58,7 +58,7 @@ export const AppInfos: AppInfos = {
   WindowSpawner: {
     appId: "WindowSpawner",
     title: "Window Spawner",
-    icon: "/resources/desktop-icons/window-spawner.ico",
+    icon: "./resources/desktop-icons/window-spawner.ico",
     windowComponent: "WindowSpawner",
     showInStartMenu: true,
     showOnDesktop: true,
@@ -67,7 +67,7 @@ export const AppInfos: AppInfos = {
   SpawnedWindow: {
     appId: "SpawnedWindow",
     title: "Spawned Window",
-    icon: "/resources/desktop-icons/window-spawner.ico",
+    icon: "./resources/desktop-icons/window-spawner.ico",
     windowComponent: "SpawnedWindow",
     showInStartMenu: false,
     showOnDesktop: false,
@@ -78,7 +78,7 @@ export const AppInfos: AppInfos = {
   FlappyBird: {
     appId: "FlappyBird",
     title: "Flappy Bird",
-    icon: "/resources/apps/flappy-bird/0.png",
+    icon: "./resources/apps/flappy-bird/0.png",
     windowComponent: "FlappyBird",
     showInStartMenu: true,
     showOnDesktop: true,
@@ -89,7 +89,7 @@ export const AppInfos: AppInfos = {
   GomokuLogin: {
     appId: "GomokuLogin",
     title: "Gomoku",
-    icon: "/resources/desktop-icons/gomoku.png", // Placeholder icon
+    icon: "./resources/desktop-icons/gomoku.png", // Placeholder icon
     windowComponent: "GomokuLogin",
     showInStartMenu: true,
     showOnDesktop: true,
@@ -99,7 +99,7 @@ export const AppInfos: AppInfos = {
   GomokuHub: {
     appId: "GomokuHub",
     title: "Gomoku - Hub",
-    icon: "/resources/desktop-icons/gomoku.png",
+    icon: "./resources/desktop-icons/gomoku.png",
     windowComponent: "GomokuHub",
     showInStartMenu: false,
     showOnDesktop: false,
@@ -109,7 +109,7 @@ export const AppInfos: AppInfos = {
   GomokuGame: {
     appId: "GomokuGame",
     title: "Gomoku - Game",
-    icon: "/resources/desktop-icons/gomoku.png",
+    icon: "./resources/desktop-icons/gomoku.png",
     windowComponent: "GomokuGame",
     showInStartMenu: false,
     showOnDesktop: false,

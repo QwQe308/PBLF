@@ -9,14 +9,14 @@ import SwapImages from "../../constructors/swapImages.vue";
 import type { StyleRecord } from "../../../support/types.ts";
 
 const PlayerImages = [
-  "/resources/apps/flappy-bird/0.png",
-  "/resources/apps/flappy-bird/1.png",
-  "/resources/apps/flappy-bird/2.png",
-  "/resources/apps/flappy-bird/3.png",
-  "/resources/apps/flappy-bird/4.png",
-  "/resources/apps/flappy-bird/5.png",
-  "/resources/apps/flappy-bird/6.png",
-  "/resources/apps/flappy-bird/7.png",
+  "./resources/apps/flappy-bird/0.png",
+  "./resources/apps/flappy-bird/1.png",
+  "./resources/apps/flappy-bird/2.png",
+  "./resources/apps/flappy-bird/3.png",
+  "./resources/apps/flappy-bird/4.png",
+  "./resources/apps/flappy-bird/5.png",
+  "./resources/apps/flappy-bird/6.png",
+  "./resources/apps/flappy-bird/7.png",
 ];
 
 const createInitialPlayerState = (): PlayerState => ({
@@ -220,7 +220,7 @@ export default {
 
 <style scoped>
 .flappy-bird-bg {
-  background-image: url("./resources/apps/flappy-bird/bg.png");
+  background-image: url("/resources/apps/flappy-bird/bg.png");
   background-size: contain;
   background-repeat: repeat-x;
 
@@ -256,7 +256,7 @@ export default {
   position: relative;
   height: 22.6%;
   width: 100%;
-  background-image: url("./resources/apps/flappy-bird/ground.png");
+  background-image: url("/resources/apps/flappy-bird/ground.png");
   background-position-x: var(--ground-offset);
   background-repeat: repeat-x;
 }
