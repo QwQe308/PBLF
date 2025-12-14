@@ -2,7 +2,6 @@
 import Window from "../../constructors/window.vue";
 import { GomokuApi, type GameState } from "./api";
 
-// 简单的轮询 Hook
 function usePolling(callback: () => void, interval: number) {
   let timer: any = null;
   const start = () => {
@@ -24,21 +23,24 @@ export default {
     title: { type: String, required: true },
     icon: { type: String, required: true },
     isHidden: { type: Boolean, required: true },
-    roomId: { type: String, default: "" }, // 需要 App.vue 传递此参数
+    roomId: { type: String, required: true },
+    roomName: { type: String, required: true },
+    playerId: { type: String, required: true },
   },
-  emits: ["hide", "focus", "close"],
+  emits: ["hide", "focus", "close", "createWindow"],
 
   data() {
     return {
       gameState: {
         board: Array(15)
           .fill(0)
-          .map(() => Array(15).fill(0)),
-        turn: 1,
+          .map(() => Array(15).fill(0)) as Array<Array<-1 | 0 | 1>>,
+        status: "WAITING",
+        turn: false,
         winner: null,
       } as GameState,
-      myColor: undefined as undefined | number, // 1: Black, 2: White, to be edited
-      statusText: "等待对手加入...",
+      myColor: undefined as undefined | number, // -1: Black, 1: White, to be edited
+      statusText: "等待加载信息...",
       fetcher: null as any,
     };
   },
@@ -57,7 +59,14 @@ export default {
   methods: {
     async fetchGameState() {
       if (!this.roomId) return;
-      const newState = await GomokuApi.getGameState(this.roomId);
+      const newState = await GomokuApi.getGameState(this.roomId, this.playerId);
+      if (newState === "timeout") return;
+      if (newState === "failed") return;
+      if (newState === "notLogin") {
+        this.$emit("createWindow", "GomokuLogin");
+        this.$emit("close", this.windowId);
+        return
+      }
       if (newState && newState.board) {
         this.gameState = newState;
         this.updateStatus();
@@ -67,23 +76,23 @@ export default {
     async handleCellClick(x: number, y: number) {
       if (!this.myColor) return;
       if (this.gameState.board[y][x] !== 0) return;
-      if (this.gameState.winner) return;
-      if (this.gameState.turn !== this.myColor) return;
+      if (this.gameState.status !== "PROCEEDING") return;
+      if (this.gameState.turn) return;
 
+      this.gameState.turn = false;
       this.gameState.board[y][x] = this.myColor;
-      this.gameState.turn = (this.gameState.turn + 1) % 2;
 
       await GomokuApi.makeMove(this.roomId, x, y);
       this.fetchGameState();
     },
 
     updateStatus() {
-      if (this.gameState.winner) {
-        this.statusText =
-          this.gameState.winner === this.myColor ? "你赢了!" : "你输了!";
+      if (this.gameState.status === "FINISHED") {
+        this.statusText = this.gameState.winner ? "你赢了!" : "你输了!";
+      } else if (this.gameState.status === "PROCEEDING") {
+        this.statusText = this.gameState.turn ? "你的回合" : "等待对方落子...";
       } else {
-        this.statusText =
-          this.gameState.turn === this.myColor ? "轮到你了" : "对方思考中...";
+        this.statusText = `等待对手加入...`;
       }
     },
   },
@@ -107,9 +116,7 @@ export default {
     @close="$emit('close', windowId)"
   >
     <div class="warpper column game-wrapper">
-      <div class="game-info border-inset">
-        {{ statusText }} (房间号: {{ roomId }})
-      </div>
+      <div class="game-info border-inset">{{ statusText }} (房间名: {{ roomName }})</div>
 
       <div class="board-container border-inset">
         <div class="board">
@@ -120,8 +127,8 @@ export default {
               class="board-cell"
               @click="handleCellClick(x, y)"
             >
-              <div v-if="cell === 1" class="stone black"></div>
-              <div v-if="cell === 2" class="stone white"></div>
+              <div v-if="cell === -1" class="stone black"></div>
+              <div v-if="cell === 1" class="stone white"></div>
             </div>
           </div>
         </div>
@@ -150,7 +157,6 @@ export default {
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  border: 2px inset #fff;
 }
 .board {
   display: flex;

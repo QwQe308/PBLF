@@ -12,8 +12,7 @@ export default {
     title: { type: String, required: true },
     icon: { type: String, required: true },
     isHidden: { type: Boolean, required: true },
-    // 假设通过某种方式传参进来，或者使用全局状态
-    username: { type: String, default: "Guest" },
+    playerId: { type: String, required: true },
   },
   emits: ["hide", "focus", "close", "createWindow"],
 
@@ -30,23 +29,48 @@ export default {
 
   methods: {
     async refreshRooms() {
-      this.rooms = await GomokuApi.getRooms();
+      let data = await GomokuApi.getRooms();
+      if (data === "timeout") return; // maybe add a error code here
+      if (data === "notLogin") {
+        this.$emit("createWindow", "GomokuLogin");
+        this.$emit("close", this.windowId);
+        return;
+      }
+      this.rooms = data;
     },
 
     async createRoom() {
       if (!this.newRoomName) return;
-      const res = await GomokuApi.createRoom(this.newRoomName);
-      this.enterGame(res.roomId);
-    },
- 
-    async joinRoom(roomId: string) {
-      await GomokuApi.joinRoom(roomId);
-      this.enterGame(roomId);
+      const response = await GomokuApi.createRoom(this.newRoomName);
+      if (response === "timeout") return;
+      if (response === "notLogin") return;
+      this.enterGame(response.id, response.name);
     },
 
-    enterGame(roomId: string) {
-      this.$emit("createWindow", "GomokuGame", { roomId: roomId });
-      this.$emit("close", this.windowId); 
+    async joinRoom(roomId: string) {
+      const response = await GomokuApi.joinRoom(roomId);
+      if (response === "timeout") return;
+      if (response === "notLogin") return;
+      if (response === "failed") return;
+      let roomData = this.getRoomDataWithId(roomId)
+      if(roomData === undefined){
+        window.alert("加入房间时产生了一个错误!<br>错误信息: 房间列表中未找到对应的房间.")
+        return
+      }
+      this.enterGame(roomId, roomData.name);
+    },
+
+    getRoomDataWithId(roomId: string): Room{
+      return this.rooms.filter(room => room.id === roomId)[0]
+    },
+
+    enterGame(roomId: string, roomName: string) {
+      this.$emit("createWindow", "GomokuGame", {
+        roomId: roomId,
+        roomName: roomName,
+        playerId: this.playerId,
+      });
+      this.$emit("close", this.windowId);
     },
   },
 };
@@ -70,22 +94,28 @@ export default {
   >
     <div class="warpper column room-wrapper">
       <div class="toolbar">
-        <input v-model="newRoomName" placeholder="新房间名" class="basic-input" />
+        <input
+          v-model="newRoomName"
+          placeholder="新房间名"
+          class="basic-input"
+        />
         <button class="basic-button" @click="createRoom">创建房间</button>
         <button class="basic-button" @click="refreshRooms">刷新</button>
       </div>
-      
+
       <div class="room-list">
-        <div 
-          v-for="room in rooms" 
-          :key="room.id" 
+        <div
+          v-for="room in rooms"
+          :key="room.id"
           class="room-item"
           @dblclick="joinRoom(room.id)"
         >
           <img src="/resources/apps/gomoku/waiting.png" class="room-icon" />
           <span class="room-name">{{ room.name }}</span>
           <span class="room-status">({{ room.players }}/2)</span>
-          <button class="basic-button small" @click="joinRoom(room.id)">加入</button>
+          <button class="basic-button small" @click="joinRoom(room.id)">
+            加入
+          </button>
         </div>
       </div>
     </div>
@@ -93,12 +123,12 @@ export default {
 </template>
 
 <style scoped>
-.room-icon{
+.room-icon {
   width: 1em;
   height: 1em;
 }
 
-.room-status{
+.room-status {
   margin-right: 4px;
 }
 
@@ -125,7 +155,7 @@ export default {
   align-items: center;
   padding: 4px;
   cursor: pointer;
-  border-bottom: 1px dashed #ccc;
+  border-bottom: 1.5px dashed #ccc;
 }
 
 .room-item:hover {
