@@ -62,11 +62,6 @@ export default {
       const newState = await GomokuApi.getGameState(this.roomId, this.playerId);
       if (newState === "timeout") return;
       if (newState === "failed") return;
-      if (newState === "notLogin") {
-        this.$emit("createWindow", "GomokuLogin");
-        this.$emit("close", this.windowId);
-        return
-      }
       if (newState && newState.board) {
         this.gameState = newState;
         this.updateStatus();

@@ -30,7 +30,6 @@ export default {
   methods: {
     async refreshRooms() {
       let data = await GomokuApi.getRooms();
-      if (data === "timeout") return; // maybe add a error code here
       if (data === "notLogin") {
         this.$emit("createWindow", "GomokuLogin");
         this.$emit("close", this.windowId);
@@ -42,15 +41,12 @@ export default {
     async createRoom() {
       if (!this.newRoomName) return;
       const response = await GomokuApi.createRoom(this.newRoomName);
-      if (response === "timeout") return;
-      if (response === "notLogin") return;
+      if (response === "failed") return;
       this.enterGame(response.id, response.name);
     },
 
     async joinRoom(roomId: string) {
       const response = await GomokuApi.joinRoom(roomId);
-      if (response === "timeout") return;
-      if (response === "notLogin") return;
       if (response === "failed") return;
       let roomData = this.getRoomDataWithId(roomId)
       if(roomData === undefined){

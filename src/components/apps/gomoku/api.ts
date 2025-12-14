@@ -18,15 +18,15 @@ export interface GameState {
 
 async function request(endpoint: string, options?: RequestInit): Promise<any> {
   options.credentials = "include";
-  let params = ""
-  if(options.body){
-    let body = JSON.parse(options.body as any)
-    for(let i in body){
-      if(params === "") params = `?${i}=${body[i]}`
-      else params += `&${i}=${body[i]}`
+  let params = "";
+  if (options.body) {
+    let body = JSON.parse(options.body as any);
+    for (let i in body) {
+      if (params === "") params = `?${i}=${body[i]}`;
+      else params += `&${i}=${body[i]}`;
     }
 
-    delete options.body
+    delete options.body;
   }
   const response = await fetch(`${BASE_URL}${endpoint}${params}`, options);
   return response.json();
@@ -36,9 +36,7 @@ export const GomokuApi = {
   async login(
     username: string,
     password: string
-  ): Promise<
-    "success" | "timeout" | "failed" | "noInput" | "tooLong" | "error"
-  > {
+  ): Promise<"success" | "failed" | "noInput" | "tooLong" | "error"> {
     if (!username || !password) {
       return "noInput";
     }
@@ -48,25 +46,21 @@ export const GomokuApi = {
     }
 
     try {
-      let response = await request("/login", {
+      const response = await request("/login", {
         method: "POST",
         body: JSON.stringify({ username, password }),
       });
 
-      if (!response.ok) {
-        if (response.code === undefined) {
-          console.error(`登录失败: ${response.status} ${response.statusText}`);
-          return "timeout";
-        }
+      if (response.code === 1) {
+        console.log(response, response.code, response.data);
+        Cookies.set("token", response.data, { secure: false });
+        console.log(Cookies.get("token"));
+        return "success";
       } else {
-        if (response.code === 1) {
-          Cookies.set("token", response.data, {secure: false});
-          return "success";
-        } else {
-          return "failed";
-          /* alert("控制台捕获了一个错误! 请查看控制台!");
+        console.log(response);
+        return "failed";
+        /* alert("控制台捕获了一个错误! 请查看控制台!");
           console.error(`未知的服务器回复: `, response); */
-        }
       }
     } catch (err) {
       console.error(err);
@@ -81,9 +75,7 @@ export const GomokuApi = {
   async register(
     username: string,
     password: string
-  ): Promise<
-    "success" | "failed" | "timeout" | "noInput" | "tooLong" | "error"
-  > {
+  ): Promise<"success" | "failed" | "noInput" | "tooLong" | "error"> {
     if (!username || !password) {
       return "noInput";
     }
@@ -98,19 +90,12 @@ export const GomokuApi = {
         body: JSON.stringify({ username, password }),
       });
 
-      if (!response.ok) {
-        if (response.code === undefined) {
-          console.error(`注册失败: ${response.status} ${response.statusText}`);
-          return "timeout";
-        }
+      if (response.success) {
+        return "success";
       } else {
-        if (response.success) {
-          return "success";
-        } else {
-          return "failed";
-          /* alert("控制台捕获了一个错误! 请查看控制台!"); */
-          /* console.error(`未知的服务器回复: `, response); */
-        }
+        return "failed";
+        /* alert("控制台捕获了一个错误! 请查看控制台!"); */
+        /* console.error(`未知的服务器回复: `, response); */
       }
     } catch (err) {
       console.error(err);
@@ -118,77 +103,59 @@ export const GomokuApi = {
     }
   },
 
-  async getRooms(): Promise<"notLogin" | "timeout" | Room[]> {
+  async getRooms(): Promise<"notLogin" | Room[]> {
     try {
       const response = await request("/room", { method: "GET" });
-      if (!response.ok) {
-        if (response.code === undefined) {
-          return "timeout";
-        } else {
-          return "notLogin";
-        }
-      } else {
-        return response.data.map((roomData: any) => {
-          return {
-            id: roomData.id,
-            name: roomData.name,
-            players:
-              (roomData.playerOneId === null ? 0 : 1) +
-              (roomData.playerTwoId === null ? 0 : 1),
-            status: roomData.status,
-          };
-        });
+      if (response.code === 0) {
+        return "notLogin";
       }
+      return response.data.map((roomData: any) => {
+        return {
+          id: roomData.id,
+          name: roomData.name,
+          players:
+            (roomData.playerOneId === null ? 0 : 1) +
+            (roomData.playerTwoId === null ? 0 : 1),
+          status: roomData.status,
+        };
+      });
     } catch (err) {
       console.error(err);
     }
   },
 
-  async createRoom(name: string): Promise<"notLogin" | "timeout" | Room> {
+  async createRoom(name: string): Promise<"failed" | Room> {
     try {
       const response = await request("/room/create", {
         method: "POST",
         body: JSON.stringify({ name }),
       });
 
-      if (!response.ok) {
-        if (response.code === undefined) {
-          return "timeout";
-        } else {
-          return "notLogin";
-        }
-      } else {
-        return response.data.map((roomData: any) => {
-          return {
-            id: roomData.id,
-            name: roomData.name,
-            players:
-              (roomData.playerOneId === null ? 0 : 1) +
-              (roomData.playerTwoId === null ? 0 : 1),
-            status: roomData.status,
-          };
-        });
+      if (response.code === 0) {
+        return "failed";
       }
+      return response.data.map((roomData: any) => {
+        return {
+          id: roomData.id,
+          name: roomData.name,
+          players:
+            (roomData.playerOneId === null ? 0 : 1) +
+            (roomData.playerTwoId === null ? 0 : 1),
+          status: roomData.status,
+        };
+      });
     } catch (err) {
       console.error(err);
     }
   },
 
-  async joinRoom(
-    roomId: string
-  ): Promise<"notLogin" | "timeout" | "failed" | "success"> {
+  async joinRoom(roomId: string): Promise<"failed" | "success"> {
     try {
       const response = await request(`/room/${roomId}`, { method: "PUT" });
-      if (!response.ok) {
-        if (response.code === undefined) {
-          return "timeout";
-        } else {
-          return "notLogin";
-        }
-      } else {
-        if (response.code === 1) return "success";
-        else return "failed";
+      if (response.code === 0) {
+        return "failed";
       }
+      return "success";
     } catch (err) {
       console.error(err);
       return "failed";
@@ -198,28 +165,20 @@ export const GomokuApi = {
   async getGameState(
     roomId: string,
     playerId: string
-  ): Promise<"notLogin" | "timeout" | "failed" | GameState> {
+  ): Promise<"timeout" | "failed" | GameState> {
     try {
       const response = await request(`/game/info/${roomId}`, { method: "GET" });
-      if (!response.ok) {
-        if (response.code === undefined) {
-          return "timeout";
-        } else {
-          return "notLogin";
-        }
-      } else {
-        if (response.code === 1) {
-          return {
-            board: response.data.checkerboard,
-            turn: response.data.nextPlayerId === playerId,
-            status: response.data.status,
-            winner:
-              response.data.status === "FINISHED"
-                ? undefined
-                : response.winnerId === playerId,
-          };
-        } else return "failed";
-      }
+      if (response.code === 1) {
+        return {
+          board: response.data.checkerboard,
+          turn: response.data.nextPlayerId === playerId,
+          status: response.data.status,
+          winner:
+            response.data.status === "FINISHED"
+              ? undefined
+              : response.winnerId === playerId,
+        };
+      } else return "failed";
     } catch (err) {
       console.error(err);
     }

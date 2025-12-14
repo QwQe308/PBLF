@@ -34,10 +34,7 @@ export default {
     async handleLogin() {
       // to be changed
       const response = await GomokuApi.login(this.username, this.password);
-      if (response === "timeout") {
-        this.message = "无法连接至服务器。";
-        return;
-      }
+      console.log(response)
       if (response === "failed") {
         this.message = "用户名或密码错误。";
         return;
@@ -61,10 +58,6 @@ export default {
     // register
     async handleRegister() {
       const response = await GomokuApi.register(this.username, this.password);
-      if (response === "timeout") {
-        this.message = "无法连接至服务器。";
-        return;
-      }
       if (response === "failed") {
         this.message = "用户名已被注册。";
         return;
