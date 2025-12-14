@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 
-const BASE_URL = "./wuziqi";
+const BASE_URL = "/wuziqi";
 
 export interface Room {
   id: string;
@@ -111,66 +111,79 @@ export const GomokuApi = {
   },
 
   async getRooms(): Promise<"notLogin" | "timeout" | Room[]> {
-    const response = await request("/room", { method: "GET" });
-    if (!response.ok) {
-      if (response.code === undefined) {
-        return "timeout";
+    try {
+      const response = await request("/room", { method: "GET" });
+      if (!response.ok) {
+        if (response.code === undefined) {
+          return "timeout";
+        } else {
+          return "notLogin";
+        }
       } else {
-        return "notLogin";
+        return response.data.map((roomData: any) => {
+          return {
+            id: roomData.id,
+            name: roomData.name,
+            players:
+              (roomData.playerOneId === null ? 0 : 1) +
+              (roomData.playerTwoId === null ? 0 : 1),
+            status: roomData.status,
+          };
+        });
       }
-    } else {
-      return response.data.map((roomData: any) => {
-        return {
-          id: roomData.id,
-          name: roomData.name,
-          players:
-            (roomData.playerOneId === null ? 0 : 1) +
-            (roomData.playerTwoId === null ? 0 : 1),
-          status: roomData.status,
-        };
-      });
+    } catch (err) {
+      console.error(err);
     }
   },
 
   async createRoom(name: string): Promise<"notLogin" | "timeout" | Room> {
-    const response = await request("/room/create", {
-      method: "POST",
-      body: JSON.stringify({ name }),
-    });
-
-    if (!response.ok) {
-      if (response.code === undefined) {
-        return "timeout";
-      } else {
-        return "notLogin";
-      }
-    } else {
-      return response.data.map((roomData: any) => {
-        return {
-          id: roomData.id,
-          name: roomData.name,
-          players:
-            (roomData.playerOneId === null ? 0 : 1) +
-            (roomData.playerTwoId === null ? 0 : 1),
-          status: roomData.status,
-        };
+    try {
+      const response = await request("/room/create", {
+        method: "POST",
+        body: JSON.stringify({ name }),
       });
+
+      if (!response.ok) {
+        if (response.code === undefined) {
+          return "timeout";
+        } else {
+          return "notLogin";
+        }
+      } else {
+        return response.data.map((roomData: any) => {
+          return {
+            id: roomData.id,
+            name: roomData.name,
+            players:
+              (roomData.playerOneId === null ? 0 : 1) +
+              (roomData.playerTwoId === null ? 0 : 1),
+            status: roomData.status,
+          };
+        });
+      }
+    } catch (err) {
+      console.error(err);
     }
   },
 
   async joinRoom(
     roomId: string
   ): Promise<"notLogin" | "timeout" | "failed" | "success"> {
-    const response = await request(`/room/${roomId}`, { method: "PUT" });
-    if (!response.ok) {
-      if (response.code === undefined) {
-        return "timeout";
+    try {
+      const response = await request(`/room/${roomId}`, { method: "PUT" });
+      if (!response.ok) {
+        if (response.code === undefined) {
+          return "timeout";
+        } else {
+          return "notLogin";
+        }
       } else {
-        return "notLogin";
+        if (response.code === 1) return "success";
+        else return "failed";
       }
-    } else {
-      if (response.code === 1) return "success";
-      else return "failed";
+    } catch (err) {
+      console.error(err);
+      return "failed";
     }
   },
 
@@ -178,25 +191,29 @@ export const GomokuApi = {
     roomId: string,
     playerId: string
   ): Promise<"notLogin" | "timeout" | "failed" | GameState> {
-    const response = await request(`/game/info/${roomId}`, { method: "GET" });
-    if (!response.ok) {
-      if (response.code === undefined) {
-        return "timeout";
+    try {
+      const response = await request(`/game/info/${roomId}`, { method: "GET" });
+      if (!response.ok) {
+        if (response.code === undefined) {
+          return "timeout";
+        } else {
+          return "notLogin";
+        }
       } else {
-        return "notLogin";
+        if (response.code === 1) {
+          return {
+            board: response.data.checkerboard,
+            turn: response.data.nextPlayerId === playerId,
+            status: response.data.status,
+            winner:
+              response.data.status === "FINISHED"
+                ? undefined
+                : response.winnerId === playerId,
+          };
+        } else return "failed";
       }
-    } else {
-      if (response.code === 1) {
-        return {
-          board: response.data.checkerboard,
-          turn: response.data.nextPlayerId === playerId,
-          status: response.data.status,
-          winner:
-            response.data.status === "FINISHED"
-              ? undefined
-              : response.winnerId === playerId,
-        };
-      } else return "failed";
+    } catch (err) {
+      console.error(err);
     }
   },
 
