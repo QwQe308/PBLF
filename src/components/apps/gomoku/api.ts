@@ -47,16 +47,15 @@ export const GomokuApi = {
         if (response.code === undefined) {
           console.error(`登录失败: ${response.status} ${response.statusText}`);
           return "timeout";
-        } else {
-          return "failed";
         }
       } else {
         if (response.success) {
           Cookies.set("token", response.data);
           return "success";
         } else {
-          alert("控制台捕获了一个错误! 请查看控制台!");
-          console.error(`未知的服务器回复: `, response);
+          return "failed";
+          /* alert("控制台捕获了一个错误! 请查看控制台!");
+          console.error(`未知的服务器回复: `, response); */
         }
       }
     } catch (err) {
@@ -93,15 +92,14 @@ export const GomokuApi = {
         if (response.code === undefined) {
           console.error(`注册失败: ${response.status} ${response.statusText}`);
           return "timeout";
-        } else {
-          return "failed";
         }
       } else {
         if (response.success) {
           return "success";
         } else {
-          alert("控制台捕获了一个错误! 请查看控制台!");
-          console.error(`未知的服务器回复: `, response);
+          return "failed";
+          /* alert("控制台捕获了一个错误! 请查看控制台!"); */
+          /* console.error(`未知的服务器回复: `, response); */
         }
       }
     } catch (err) {
