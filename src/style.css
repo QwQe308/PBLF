@@ -2,8 +2,8 @@
   user-select: none;
   box-sizing: border-box;
 
-  --pointer: url("./resources/cursors/pointer.cur"), auto;
-  --arrow: url("./resources/cursors/arrow.cur"), auto;
+  --pointer: url("/resources/cursors/pointer.cur"), auto;
+  --arrow: url("/resources/cursors/arrow.cur"), auto;
 
   --font-Times-New-Roman: "Times New Roman", sans-serif;
   --font-Sans-Serif: "Pixelated MS Sans Serif", "WenQuanYi Bitmap Song",
@@ -14,12 +14,12 @@
 
 @font-face {
   font-family: "Press Start 2P";
-  src: url("./resources/fonts/PressStart2P-Regular.ttf");
+  src: url("/resources/fonts/PressStart2P-Regular.ttf");
 }
 
 @font-face {
   font-family: "WenQuanYi Bitmap Song";
-  src: url("./resources/fonts/WenQuanYi\ Bitmap\ Song\ 12px.ttf")
+  src: url("/resources/fonts/WenQuanYi\ Bitmap\ Song\ 12px.ttf")
     format("woff2");
   font-size: 12px;
   font-style: normal;
@@ -28,7 +28,7 @@
 
 @font-face {
   font-family: "WenQuanYi Bitmap Song";
-  src: url("./resources/fonts/WenQuanYi\ Bitmap\ Song\ 13px.ttf")
+  src: url("/resources/fonts/WenQuanYi\ Bitmap\ Song\ 13px.ttf")
     format("woff2");
   font-size: 13px;
   font-style: normal;
@@ -37,7 +37,7 @@
 
 @font-face {
   font-family: "WenQuanYi Bitmap Song";
-  src: url("./resources/fonts/WenQuanYi\ Bitmap\ Song\ 14px.ttf")
+  src: url("/resources/fonts/WenQuanYi\ Bitmap\ Song\ 14px.ttf")
     format("woff2");
   font-size: 14px;
   font-style: normal;
@@ -46,7 +46,7 @@
 
 @font-face {
   font-family: "WenQuanYi Bitmap Song";
-  src: url("./resources/fonts/WenQuanYi\ Bitmap\ Song\ 15px.ttf")
+  src: url("/resources/fonts/WenQuanYi\ Bitmap\ Song\ 15px.ttf")
     format("woff2");
   font-size: 15px;
   font-style: normal;
@@ -55,7 +55,7 @@
 
 @font-face {
   font-family: "WenQuanYi Bitmap Song";
-  src: url("./resources/fonts/WenQuanYi\ Bitmap\ Song\ 16px.ttf")
+  src: url("/resources/fonts/WenQuanYi\ Bitmap\ Song\ 16px.ttf")
     format("woff2");
   font-size: 16px;
   font-style: normal;
@@ -64,14 +64,14 @@
 
 @font-face {
   font-family: "Pixelated MS Sans Serif";
-  src: url("./resources/fonts/ms_sans_serif.woff2") format("woff2");
+  src: url("/resources/fonts/ms_sans_serif.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
 }
 
 @font-face {
   font-family: "Pixelated MS Sans Serif";
-  src: url("./resources/fonts/ms_sans_serif_bold.woff2") format("woff2");
+  src: url("/resources/fonts/ms_sans_serif_bold.woff2") format("woff2");
   font-style: normal;
   font-weight: 700;
 }

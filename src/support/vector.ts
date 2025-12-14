@@ -1,5 +1,3 @@
-import type { NumberRange } from "./numberRange";
-
 export class Vector {
   constructor(public x: number, public y: number) {}
 

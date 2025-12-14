@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 
-const BASE_URL = "https://47.108.59.196/wuziqi";
+const BASE_URL = "https://47.108.59.196:8080/wuziqi";
 
 export interface Room {
   id: string;

@@ -1,5 +1,6 @@
 <script lang="ts">
 import Window from "../../constructors/window.vue";
+import { GomokuApi } from "./api";
 
 export default {
   name: "GomokuLogin",
@@ -31,22 +32,58 @@ export default {
   methods: {
     // login
     async handleLogin() {
-      if (this.username && this.password) {  // to be changed
-        this.$emit("createWindow", "GomokuHub");
-        this.$emit("close", this.windowId);
-      } else {
-        this.message = "请输入用户名和密码。";
+      // to be changed
+      const response = await GomokuApi.login(this.username, this.password);
+      if (response === "timeout") {
+        this.message = "无法连接至服务器。";
+        return;
       }
+      if (response === "failed") {
+        this.message = "用户名或密码错误。";
+        return;
+      }
+      if (response === "noInput") {
+        this.message = "请输入用户名和密码。";
+        return;
+      }
+      if (response === "tooLong") {
+        this.message = "用户名或密码过长。";
+        return;
+      }
+      if (response === "error") {
+        this.message = "发生了一个错误。";
+        return;
+      }
+      this.$emit("createWindow", "GomokuHub");
+      this.$emit("close", this.windowId);
     },
 
     // register
     async handleRegister() {
-      if (this.username && this.password) {  // to be changed
-        this.message = `用户 ${this.username} 注册成功! 请登录。`;
-        this.password = "";
-      } else {
-        this.message = "请输入用户名和密码进行注册。";
+      const response = await GomokuApi.register(this.username, this.password);
+      if (response === "timeout") {
+        this.message = "无法连接至服务器。";
+        return;
       }
+      if (response === "failed") {
+        this.message = "用户名已被注册。";
+        return;
+      }
+      if (response === "noInput") {
+        this.message = "请输入用户名和密码。";
+        return;
+      }
+      if (response === "tooLong") {
+        this.message = "用户名或密码过长。";
+        return;
+      }
+      if (response === "error") {
+        this.message = "发生了一个错误。";
+        window.alert("进行网络连接时发生了一个错误! 请检查控制台.")
+        return;
+      }
+      this.password = "";
+      this.message = `用户 ${this.username} 注册成功! 请登录。`;
     },
   },
 };
@@ -69,9 +106,7 @@ export default {
     @close="$emit('close', windowId)"
   >
     <div class="gomoku-warpper column">
-      <div
-        class="login-register-view column"
-      >
+      <div class="login-register-view column">
         <h2>五子棋 - 登录/注册</h2>
         <div class="form-group">
           <label for="username">用户名:</label>
