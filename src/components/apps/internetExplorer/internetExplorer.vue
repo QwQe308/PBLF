@@ -16,8 +16,8 @@ export default {
   },
   data() {
     return {
-      inputLink: "https://www.lingrui.club",
-      iframeLink: "https://www.lingrui.club",
+      inputLink: "https://www.baidu.com",
+      iframeLink: "https://www.baidu.com",
     };
   },
 
