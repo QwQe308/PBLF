@@ -38,8 +38,8 @@ export default {
         status: "WAITING",
         turn: false,
         winner: null,
+        color: undefined
       } as GameState,
-      myColor: undefined as undefined | number, // -1: Black, 1: White, to be edited
       statusText: "等待加载信息...",
       fetcher: null as any,
     };
@@ -69,13 +69,13 @@ export default {
     },
 
     async handleCellClick(x: number, y: number) {
-      if (!this.myColor) return;
+      if (this.gameState.color === undefined) return;
       if (this.gameState.board[y][x] !== 0) return;
       if (this.gameState.status !== "PROCEEDING") return;
       if (this.gameState.turn) return;
 
       this.gameState.turn = false;
-      this.gameState.board[y][x] = this.myColor;
+      this.gameState.board[y][x] = this.gameState.color;
 
       await GomokuApi.makeMove(this.roomId, x, y);
       this.fetchGameState();
@@ -115,15 +115,15 @@ export default {
 
       <div class="board-container border-inset">
         <div class="board">
-          <div v-for="(row, y) in gameState.board" :key="y" class="board-row">
+          <div v-for="y in 15" :key="y" class="board-row">
             <div
-              v-for="(cell, x) in row"
+              v-for="x in 15"
               :key="x"
               class="board-cell"
               @click="handleCellClick(x, y)"
             >
-              <div v-if="cell === -1" class="stone black"></div>
-              <div v-if="cell === 1" class="stone white"></div>
+              <div v-if="gameState.board[x][y] === -1" class="stone black"></div>
+              <div v-if="gameState.board[x][y] === 1" class="stone white"></div>
             </div>
           </div>
         </div>

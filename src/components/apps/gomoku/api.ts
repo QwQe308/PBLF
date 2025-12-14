@@ -14,10 +14,19 @@ export interface GameState {
   turn: boolean;
   status: "WAITING" | "PROCEEDING" | "FINISHED";
   winner: undefined | boolean;
+  color: undefined | -1 | 1;
 }
 
 async function request(endpoint: string, options?: RequestInit): Promise<any> {
-  options.credentials = "include";
+  const token = Cookies.get("token");
+  const headers = new Headers(options?.headers);
+
+  if (token) {
+    headers.set("token", token);
+  }
+
+  const credentials: RequestCredentials = "include";
+
   let params = "";
   if (options.body) {
     let body = JSON.parse(options.body as any);
@@ -28,7 +37,11 @@ async function request(endpoint: string, options?: RequestInit): Promise<any> {
 
     delete options.body;
   }
-  const response = await fetch(`${BASE_URL}${endpoint}${params}`, options);
+  const response = await fetch(`${BASE_URL}${endpoint}${params}`, {
+    ...options,
+    headers,
+    credentials,
+  });
   return response.json();
 }
 
@@ -177,6 +190,7 @@ export const GomokuApi = {
             response.data.status === "FINISHED"
               ? undefined
               : response.winnerId === playerId,
+          color: response.data.playerOneId === playerId ? -1 : 1,
         };
       } else return "failed";
     } catch (err) {
