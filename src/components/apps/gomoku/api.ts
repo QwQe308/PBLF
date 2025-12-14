@@ -46,7 +46,7 @@ export const GomokuApi = {
     if (username.length > 50 || password.length > 100) {
       return "tooLong";
     }
-    
+
     try {
       let response = await request("/login", {
         method: "POST",
@@ -59,7 +59,7 @@ export const GomokuApi = {
           return "timeout";
         }
       } else {
-        if (response.success) {
+        if (response.code === 1) {
           Cookies.set("token", response.data, {secure: false});
           return "success";
         } else {
