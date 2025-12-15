@@ -72,7 +72,7 @@ export default {
       if (this.gameState.color === undefined) return;
       if (this.gameState.board[y][x] !== 0) return;
       if (this.gameState.status !== "PROCEEDING") return;
-      if (this.gameState.turn) return;
+      if (!this.gameState.turn) return;
 
       this.gameState.turn = false;
       this.gameState.board[y][x] = this.gameState.color;
@@ -115,10 +115,10 @@ export default {
 
       <div class="board-container border-inset">
         <div class="board">
-          <div v-for="y in 15" :key="y" class="board-row">
+          <div v-for="x in 15" :key="x" class="board-row">
             <div
-              v-for="x in 15"
-              :key="x"
+              v-for="y in 15"
+              :key="y"
               class="board-cell"
               @click="handleCellClick(x, y)"
             >

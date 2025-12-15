@@ -103,7 +103,7 @@ export const GomokuApi = {
         body: JSON.stringify({ username, password }),
       });
 
-      if (response.success) {
+      if (response.code === 1) {
         return "success";
       } else {
         return "failed";
