@@ -115,12 +115,12 @@ export default {
 
       <div class="board-container border-inset">
         <div class="board">
-          <div v-for="x in 15" :key="x" class="board-row">
+          <div v-for="y in 15" :key="y" class="board-row">
             <div
-              v-for="y in 15"
-              :key="y"
+              v-for="x in 15"
+              :key="x"
               class="board-cell"
-              @click="handleCellClick(x, y)"
+              @click="handleCellClick(y, x)"
             >
               <div v-if="gameState.board[x][y] === -1" class="stone black"></div>
               <div v-if="gameState.board[x][y] === 1" class="stone white"></div>
