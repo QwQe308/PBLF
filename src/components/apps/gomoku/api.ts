@@ -23,21 +23,20 @@ async function request(endpoint: string, options?: RequestInit): Promise<any> {
 
   if (token) {
     headers.set("token", token);
+    headers.set("Content-Type", "application/json");
   }
 
   const credentials: RequestCredentials = "include";
 
-  let params = "";
+  /* let params = "";
   if (options.body) {
     let body = JSON.parse(options.body as any);
     for (let i in body) {
       if (params === "") params = `?${i}=${body[i]}`;
       else params += `&${i}=${body[i]}`;
     }
-
-    delete options.body;
-  }
-  const response = await fetch(`${BASE_URL}${endpoint}${params}`, {
+  } */
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
     ...options,
     headers,
     credentials,
@@ -64,20 +63,28 @@ export const GomokuApi = {
         body: JSON.stringify({ username, password }),
       });
 
-      if (response.code === 1) {
-        console.log(response, response.code, response.data);
+      if (response.code === 200) {
         Cookies.set("token", response.data, { secure: false });
-        console.log(Cookies.get("token"));
         return "success";
       } else {
         console.log(response);
         return "failed";
-        /* alert("控制台捕获了一个错误! 请查看控制台!");
-          console.error(`未知的服务器回复: `, response); */
       }
     } catch (err) {
       console.error(err);
       return "error";
+    }
+  },
+
+  async getProfile(): Promise<string>{
+    try{
+      const response = await request("/user/info", {
+        method: "GET"
+      })
+
+      return response.data.id
+    }catch(err){
+      console.log(err)
     }
   },
 
@@ -103,12 +110,10 @@ export const GomokuApi = {
         body: JSON.stringify({ username, password }),
       });
 
-      if (response.code === 1) {
+      if (response.code === 200) {
         return "success";
       } else {
         return "failed";
-        /* alert("控制台捕获了一个错误! 请查看控制台!"); */
-        /* console.error(`未知的服务器回复: `, response); */
       }
     } catch (err) {
       console.error(err);
@@ -144,28 +149,28 @@ export const GomokuApi = {
         body: JSON.stringify({ name }),
       });
 
-      if (response.code === 0) {
+      if (response.code !== 200) {
         return "failed";
       }
-      return response.data.map((roomData: any) => {
-        return {
-          id: roomData.id,
-          name: roomData.name,
-          players:
-            (roomData.playerOneId === null ? 0 : 1) +
-            (roomData.playerTwoId === null ? 0 : 1),
-          status: roomData.status,
-        };
-      });
+
+      return {
+        id: response.data.id,
+        name: response.data.name,
+        players:
+          (response.data.playerOneId === null ? 0 : 1) +
+          (response.data.playerTwoId === null ? 0 : 1),
+        status: response.data.status,
+      };
     } catch (err) {
       console.error(err);
+      return "failed";
     }
   },
 
   async joinRoom(roomId: string): Promise<"failed" | "success"> {
     try {
       const response = await request(`/room/${roomId}`, { method: "PUT" });
-      if (response.code === 0) {
+      if (response.code !== 200) {
         return "failed";
       }
       return "success";
@@ -181,15 +186,15 @@ export const GomokuApi = {
   ): Promise<"timeout" | "failed" | GameState> {
     try {
       const response = await request(`/game/info/${roomId}`, { method: "GET" });
-      if (response.code === 1) {
+      if (response.code === 200) {
         return {
           board: response.data.checkerboard,
           turn: response.data.nextPlayerId === playerId,
           status: response.data.status,
           winner:
             response.data.status === "FINISHED"
-              ? undefined
-              : response.winnerId === playerId,
+              ? response.data.winnerId === playerId
+              : undefined,
           color: response.data.playerOneId === playerId ? -1 : 1,
         };
       } else return "failed";
@@ -198,10 +203,10 @@ export const GomokuApi = {
     }
   },
 
-  async makeMove(roomId: string, x: number, y: number): Promise<void> {
-    return request(`/rooms/${roomId}/move`, {
+  async makeMove(roomId: string, playerId: string, x: number, y: number): Promise<void> {
+    return request(`/game/move`, {
       method: "POST",
-      body: JSON.stringify({ x, y }),
+      body: JSON.stringify({ roomId: roomId, chessPlayerId: playerId, row: x, column: y }),
     });
   },
 };

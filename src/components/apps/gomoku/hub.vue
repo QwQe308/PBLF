@@ -25,6 +25,7 @@ export default {
 
   mounted() {
     this.refreshRooms();
+    console.log("test2", this.playerId)
   },
 
   methods: {

@@ -9,7 +9,7 @@ export interface PlayerState {
   position: Rectangle;
   score: number;
   speed: Vector;
-  obstacleSpawnTimer: number,
+  obstacleSpawnTimer: number;
   bgOffset: number;
   groundOffset: number;
   startSlowdown: number;
@@ -65,7 +65,7 @@ export class FlappyBirdGame {
 
   start() {
     Object.assign(this.state.player, this.defaultPlayerData);
-    this.state.player.speed = new Vector(300, 0)
+    this.state.player.speed = new Vector(300, 0);
     this.state.obstacles.clear();
 
     if (!this.state.isGameover) this.interval.set();
@@ -74,7 +74,7 @@ export class FlappyBirdGame {
     this.state.isGameover = false;
     this.callbacks.onStateUpdate(this.state);
 
-    this.interval.set()
+    this.interval.set();
   }
 
   private gameInterval(diff: number) {
@@ -88,7 +88,7 @@ export class FlappyBirdGame {
       // Avoid background running
       diff = Math.min(diff, 0.2);
 
-      // position
+      // Position
       this.state.player.speed.y =
         (this.state.player.speed.y + this.Yacceleration * diff) * 0.7 ** diff;
       this.state.player.position = this.state.player.position.moveY(
@@ -115,14 +115,10 @@ export class FlappyBirdGame {
             this.gameover();
             break;
           case "Remove":
-            this.state.obstacles.delete(obstacle)
+            this.state.obstacles.delete(obstacle);
             break;
         }
       });
-
-      // Background moves
-      this.state.player.bgOffset += this.state.player.speed.x * diff * 1.6;
-      this.state.player.groundOffset += this.state.player.speed.x * diff;
 
       // Check collisions with sky / ground
       if (
@@ -131,6 +127,10 @@ export class FlappyBirdGame {
       ) {
         this.gameover();
       }
+
+      // Background moves
+      this.state.player.bgOffset += this.state.player.speed.x * diff * 1.6;
+      this.state.player.groundOffset += this.state.player.speed.x * diff;
     }
 
     if (this.state.gameoverCounter > 0) {

@@ -51,7 +51,9 @@ export default {
         this.message = "发生了一个错误。";
         return;
       }
-      this.$emit("createWindow", "GomokuHub");
+      const playerId = await GomokuApi.getProfile()
+      console.log("test1", playerId)
+      this.$emit("createWindow", "GomokuHub", {playerId: playerId});
       this.$emit("close", this.windowId);
     },
 

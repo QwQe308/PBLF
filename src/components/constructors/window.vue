@@ -1,4 +1,3 @@
-// src/components/constructors/window.vue
 <script lang="ts">
 import { Vector } from "../../support/vector";
 import type { ClassRecord, StyleRecord } from "../../support/types";

@@ -47,6 +47,7 @@ export default {
 
   mounted() {
     // Start fetching data
+    console.log("test3", this.playerId)
     this.fetcher = usePolling(this.fetchGameState, 500);
     this.fetcher.start();
     this.fetchGameState();
@@ -70,18 +71,19 @@ export default {
 
     async handleCellClick(x: number, y: number) {
       if (this.gameState.color === undefined) return;
-      if (this.gameState.board[y][x] !== 0) return;
+      if (this.gameState.board[x][y] !== 0) return;
       if (this.gameState.status !== "PROCEEDING") return;
       if (!this.gameState.turn) return;
 
       this.gameState.turn = false;
-      this.gameState.board[y][x] = this.gameState.color;
+      this.gameState.board[x][y] = this.gameState.color;
 
-      await GomokuApi.makeMove(this.roomId, x, y);
+      await GomokuApi.makeMove(this.roomId, this.playerId, x, y);
       this.fetchGameState();
     },
 
     updateStatus() {
+      console.log(this.playerId)
       if (this.gameState.status === "FINISHED") {
         this.statusText = this.gameState.winner ? "你赢了!" : "你输了!";
       } else if (this.gameState.status === "PROCEEDING") {
@@ -120,7 +122,7 @@ export default {
               v-for="x in 15"
               :key="x"
               class="board-cell"
-              @click="handleCellClick(y, x)"
+              @click="handleCellClick(x, y)"
             >
               <div v-if="gameState.board[x][y] === -1" class="stone black"></div>
               <div v-if="gameState.board[x][y] === 1" class="stone white"></div>
@@ -207,5 +209,9 @@ export default {
 .stone.white {
   background: #fff;
   background-image: radial-gradient(circle at 5px 5px, #fff, #ddd);
+}
+
+.stone.recent {
+  box-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
 }
 </style>
