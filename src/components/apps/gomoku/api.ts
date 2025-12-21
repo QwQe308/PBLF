@@ -15,6 +15,7 @@ export interface GameState {
   status: "WAITING" | "PROCEEDING" | "FINISHED";
   winner: undefined | boolean;
   color: undefined | -1 | 1;
+  lastMove: [number, number];
 }
 
 async function request(endpoint: string, options?: RequestInit): Promise<any> {
@@ -23,8 +24,8 @@ async function request(endpoint: string, options?: RequestInit): Promise<any> {
 
   if (token) {
     headers.set("token", token);
-    headers.set("Content-Type", "application/json");
   }
+  headers.set("Content-Type", "application/json");
 
   const credentials: RequestCredentials = "include";
 
@@ -169,7 +170,7 @@ export const GomokuApi = {
 
   async joinRoom(roomId: string): Promise<"failed" | "success"> {
     try {
-      const response = await request(`/room/${roomId}`, { method: "PUT" });
+      const response = await request(`/room/join/${roomId}`, { method: "PUT" });
       if (response.code !== 200) {
         return "failed";
       }
@@ -185,17 +186,20 @@ export const GomokuApi = {
     playerId: string
   ): Promise<"timeout" | "failed" | GameState> {
     try {
-      const response = await request(`/game/info/${roomId}`, { method: "GET" });
+      const response = await request(`/room/info/${roomId}`, { method: "GET" });
       if (response.code === 200) {
+        const RoomResponse = response.data.roomResponse
+        const StepResponse = response.data.stepResponse
         return {
-          board: response.data.checkerboard,
-          turn: response.data.nextPlayerId === playerId,
-          status: response.data.status,
+          board: RoomResponse.checkerboard,
+          turn: RoomResponse.nextPlayerId === playerId,
+          status: RoomResponse.status,
           winner:
-            response.data.status === "FINISHED"
-              ? response.data.winnerId === playerId
+            RoomResponse.status === "FINISHED"
+              ? RoomResponse.winnerId === playerId
               : undefined,
-          color: response.data.playerOneId === playerId ? -1 : 1,
+          color: RoomResponse.playerOneId === playerId ? -1 : 1,
+          lastMove: StepResponse === null ? [StepResponse.row, StepResponse.column] : null
         };
       } else return "failed";
     } catch (err) {
@@ -203,10 +207,10 @@ export const GomokuApi = {
     }
   },
 
-  async makeMove(roomId: string, playerId: string, x: number, y: number): Promise<void> {
+  async makeMove(roomId: string, x: number, y: number): Promise<void> {
     return request(`/game/move`, {
       method: "POST",
-      body: JSON.stringify({ roomId: roomId, chessPlayerId: playerId, row: x, column: y }),
+      body: JSON.stringify({ roomId: roomId, row: x, column: y }),
     });
   },
 };

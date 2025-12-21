@@ -1,4 +1,5 @@
 <script lang="ts">
+import type { ClassRecord } from "../../../support/types";
 import Window from "../../constructors/window.vue";
 import { GomokuApi, type GameState } from "./api";
 
@@ -32,13 +33,14 @@ export default {
   data() {
     return {
       gameState: {
-        board: Array(15)
+        board: Array(17)
           .fill(0)
-          .map(() => Array(15).fill(0)) as Array<Array<-1 | 0 | 1>>,
+          .map(() => Array(17).fill(0)) as Array<Array<-1 | 0 | 1>>,
         status: "WAITING",
         turn: false,
         winner: null,
-        color: undefined
+        color: undefined,
+        lastMove: null,
       } as GameState,
       statusText: "等待加载信息...",
       fetcher: null as any,
@@ -78,12 +80,11 @@ export default {
       this.gameState.turn = false;
       this.gameState.board[x][y] = this.gameState.color;
 
-      await GomokuApi.makeMove(this.roomId, this.playerId, x, y);
+      await GomokuApi.makeMove(this.roomId, x, y);
       this.fetchGameState();
     },
 
     updateStatus() {
-      console.log(this.playerId)
       if (this.gameState.status === "FINISHED") {
         this.statusText = this.gameState.winner ? "你赢了!" : "你输了!";
       } else if (this.gameState.status === "PROCEEDING") {
@@ -92,6 +93,13 @@ export default {
         this.statusText = `等待对手加入...`;
       }
     },
+
+    getCellStyle(x, y): ClassRecord{
+      if(!this.gameState.lastMove) return {}
+      return {
+        recent: this.gameState.lastMove[0] === x && this.gameState.lastMove[1] === y
+      }
+    }
   },
 };
 </script>
@@ -124,8 +132,8 @@ export default {
               class="board-cell"
               @click="handleCellClick(x, y)"
             >
-              <div v-if="gameState.board[x][y] === -1" class="stone black"></div>
-              <div v-if="gameState.board[x][y] === 1" class="stone white"></div>
+              <div v-if="gameState.board[x][y] === -1" class="stone black" :class="getCellStyle(x, y)"></div>
+              <div v-if="gameState.board[x][y] === 1" class="stone white" :class="getCellStyle(x, y)"></div>
             </div>
           </div>
         </div>

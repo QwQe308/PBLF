@@ -1,4 +1,3 @@
-// src/components/App.vue
 <script lang="ts">
 import { Interval } from "../support/interval";
 import DesktopIcon from "./constructors/desktopIcon.vue";
@@ -15,7 +14,7 @@ import GomokuLogin from "./apps/gomoku/login.vue";
 import GomokuHub from "./apps/gomoku/hub.vue";
 import GomokuGame from "./apps/gomoku/game.vue";
 
-// 定义运行中的窗口实例类型
+// Window Infos
 interface WindowInstance {
   windowId: string;
   appId: string;
